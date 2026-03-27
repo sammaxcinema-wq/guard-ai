@@ -1,0 +1,129 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: /users/{userId}
+    // Fields:
+    //   - uid: string (required)
+    //   - name: string (required)
+    //   - phone: string (optional)
+    //   - businessName: string (required)
+    //   - createdAt: timestamp (required)
+    //
+    // Collection: /sales/{saleId}
+    // Fields:
+    //   - userId: string (required)
+    //   - amount: number (required)
+    //   - paymentMethod: string (required, enum: ['cash', 'mpesa'])
+    //   - items: list (required)
+    //   - date: timestamp (required)
+    //
+    // Collection: /products/{productId}
+    // Fields:
+    //   - userId: string (required)
+    //   - name: string (required)
+    //   - stockQuantity: number (required)
+    //   - buyingPrice: number (required)
+    //   - sellingPrice: number (required)
+    //   - lowStockThreshold: number (optional)
+    //
+    // Collection: /expenses/{expenseId}
+    // Fields:
+    //   - userId: string (required)
+    //   - title: string (required)
+    //   - amount: number (required)
+    //   - date: timestamp (required)
+    //
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.userId;
+    }
+
+    function isDocOwnerCreate() {
+      return isAuthenticated() && request.auth.uid == request.resource.data.userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "modegard895@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'name', 'businessName', 'createdAt']) &&
+             data.uid is string && data.uid.size() > 0 &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.businessName is string && data.businessName.size() > 0 && data.businessName.size() < 100;
+    }
+
+    function isValidSale(data) {
+      return data.keys().hasAll(['userId', 'amount', 'paymentMethod', 'date']) &&
+             data.userId == request.auth.uid &&
+             data.amount is number && data.amount >= 0 &&
+             data.paymentMethod in ['cash', 'mpesa'] &&
+             data.date is timestamp;
+    }
+
+    function isValidProduct(data) {
+      return data.keys().hasAll(['userId', 'name', 'stockQuantity', 'buyingPrice', 'sellingPrice']) &&
+             data.userId == request.auth.uid &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.stockQuantity is number &&
+             data.buyingPrice is number && data.buyingPrice >= 0 &&
+             data.sellingPrice is number && data.sellingPrice >= 0;
+    }
+
+    function isValidExpense(data) {
+      return data.keys().hasAll(['userId', 'title', 'amount', 'date']) &&
+             data.userId == request.auth.uid &&
+             data.title is string && data.title.size() > 0 && data.title.size() < 100 &&
+             data.amount is number && data.amount >= 0 &&
+             data.date is timestamp;
+    }
+
+    // Rules
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId) && isValidUser(request.resource.data);
+      allow update: if isOwner(userId) && isValidUser(request.resource.data) && 
+                    request.resource.data.uid == resource.data.uid;
+    }
+
+    match /sales/{saleId} {
+      allow read: if isDocOwner() || isAdmin();
+      allow create: if isDocOwnerCreate() && isValidSale(request.resource.data);
+      allow update: if isDocOwner() && isValidSale(request.resource.data) &&
+                    request.resource.data.userId == resource.data.userId;
+      allow delete: if isDocOwner() || isAdmin();
+    }
+
+    match /products/{productId} {
+      allow read: if isDocOwner() || isAdmin();
+      allow create: if isDocOwnerCreate() && isValidProduct(request.resource.data);
+      allow update: if isDocOwner() && isValidProduct(request.resource.data) &&
+                    request.resource.data.userId == resource.data.userId;
+      allow delete: if isDocOwner() || isAdmin();
+    }
+
+    match /expenses/{expenseId} {
+      allow read: if isDocOwner() || isAdmin();
+      allow create: if isDocOwnerCreate() && isValidExpense(request.resource.data);
+      allow update: if isDocOwner() && isValidExpense(request.resource.data) &&
+                    request.resource.data.userId == resource.data.userId;
+      allow delete: if isDocOwner() || isAdmin();
+    }
+  }
+}

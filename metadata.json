@@ -1,0 +1,5 @@
+{
+  "name": "Biashara POS",
+  "description": "A simple POS and inventory management app for small businesses to track sales, stock, and expenses.",
+  "requestFramePermissions": []
+}
