@@ -37,6 +37,15 @@ service cloud.firestore {
     //   - amount: number (required)
     //   - date: timestamp (required)
     //
+    // Collection: /customers/{customerId}
+    // Fields:
+    //   - userId: string (required)
+    //   - name: string (required)
+    //   - phone: string (optional)
+    //   - email: string (optional)
+    //   - address: string (optional)
+    //   - createdAt: timestamp (required)
+    //
     // ===============================================================
 
     // Helper Functions
@@ -74,7 +83,8 @@ service cloud.firestore {
              data.userId == request.auth.uid &&
              data.amount is number && data.amount >= 0 &&
              data.paymentMethod in ['cash', 'mpesa'] &&
-             data.date is timestamp;
+             data.date is timestamp &&
+             (!('customerId' in data) || data.customerId is string);
     }
 
     function isValidProduct(data) {
@@ -92,6 +102,13 @@ service cloud.firestore {
              data.title is string && data.title.size() > 0 && data.title.size() < 100 &&
              data.amount is number && data.amount >= 0 &&
              data.date is timestamp;
+    }
+
+    function isValidCustomer(data) {
+      return data.keys().hasAll(['userId', 'name', 'createdAt']) &&
+             data.userId == request.auth.uid &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.createdAt is timestamp;
     }
 
     // Rules
@@ -122,6 +139,14 @@ service cloud.firestore {
       allow read: if isDocOwner() || isAdmin();
       allow create: if isDocOwnerCreate() && isValidExpense(request.resource.data);
       allow update: if isDocOwner() && isValidExpense(request.resource.data) &&
+                    request.resource.data.userId == resource.data.userId;
+      allow delete: if isDocOwner() || isAdmin();
+    }
+
+    match /customers/{customerId} {
+      allow read: if isDocOwner() || isAdmin();
+      allow create: if isDocOwnerCreate() && isValidCustomer(request.resource.data);
+      allow update: if isDocOwner() && isValidCustomer(request.resource.data) &&
                     request.resource.data.userId == resource.data.userId;
       allow delete: if isDocOwner() || isAdmin();
     }

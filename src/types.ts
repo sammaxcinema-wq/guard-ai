@@ -26,10 +26,21 @@ export interface SaleItem {
 export interface Sale {
   id: string;
   userId: string;
+  customerId?: string;
   amount: number;
   paymentMethod: 'cash' | 'mpesa';
   items: SaleItem[];
   date: any;
+}
+
+export interface Customer {
+  id: string;
+  userId: string;
+  name: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  createdAt: any;
 }
 
 export interface Expense {

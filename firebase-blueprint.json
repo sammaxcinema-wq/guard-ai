@@ -19,6 +19,7 @@
       "type": "object",
       "properties": {
         "userId": { "type": "string", "description": "The ID of the user who made the sale." },
+        "customerId": { "type": "string", "description": "The ID of the customer (optional)." },
         "amount": { "type": "number", "description": "The total amount of the sale." },
         "paymentMethod": { "type": "string", "enum": ["cash", "mpesa"], "description": "How the sale was paid for." },
         "items": {
@@ -51,6 +52,20 @@
       },
       "required": ["userId", "name", "stockQuantity", "buyingPrice", "sellingPrice"]
     },
+    "Customer": {
+      "title": "Customer",
+      "description": "A customer of the business.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "The ID of the business owner." },
+        "name": { "type": "string", "description": "The customer's name." },
+        "phone": { "type": "string", "description": "The customer's phone number." },
+        "email": { "type": "string", "description": "The customer's email address." },
+        "address": { "type": "string", "description": "The customer's address." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the customer was added." }
+      },
+      "required": ["userId", "name"]
+    },
     "Expense": {
       "title": "Expense",
       "description": "A business expense.",
@@ -76,6 +91,10 @@
     "/products/{productId}": {
       "schema": "Product",
       "description": "Inventory items."
+    },
+    "/customers/{customerId}": {
+      "schema": "Customer",
+      "description": "Customer information."
     },
     "/expenses/{expenseId}": {
       "schema": "Expense",
