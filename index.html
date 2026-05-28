@@ -3,540 +3,486 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>GuardAI | Security Intelligence Platform</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
-
+  <title>GuardAI v4.5 | Sovereign Security Terminal</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;800&family=IBM+Plex+Mono:wght@400;500;600&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
-    /* ========== GUARDAI AUTH + DASHBOARD (MILITARY BRUTALIST) ========== */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
     :root {
-      --bg-deep:        #080E0A;
-      --bg-mid:         #0C1410;
-      --bg-raised:      #111C15;
-      --bg-hover:       #152018;
-      --text-primary:   #E8F0EA;
-      --text-secondary: #7A9980;
-      --text-ghost:     #3A5040;
-      --border:         #1A2820;
-      --border-lit:     #2A4030;
+      --bg-deep:        #050806;
+      --bg-mid:         #0C120E;
+      --bg-raised:      #121A15;
+      --bg-hover:       #18241C;
+      --text-primary:   #EAF2EC;
+      --text-secondary: #7FA387;
+      --text-ghost:     #3D5444;
+      --border:         #19261E;
+      --border-lit:     #2D4536;
       --accent:         #2ECC71;
-      --accent-dim:     rgba(46,204,113,0.10);
-      --accent-glow:    rgba(46,204,113,0.22);
-      --danger:         #E53E3E;
-      --danger-dim:     rgba(229,62,62,0.12);
-      --danger-bright:  #FC8181;
-      --warning:        #F6AD55;
-      --warning-dim:    rgba(246,173,85,0.10);
-      --info:           #63B3ED;
-      --shadow-card:    0 2px 8px rgba(0,0,0,0.45);
-      --shadow-raised:  0 8px 32px rgba(0,0,0,0.5);
-      --ease:           cubic-bezier(0.16, 1, 0.3, 1);
+      --accent-dim:     rgba(46,204,113,0.08);
+      --danger:         #FF4D4D;
+      --danger-dim:     rgba(255,77,77,0.1);
+      --danger-bright:  #FFA3A3;
+      --warning:        #FFA500;
+      --warning-dim:    rgba(255,165,0,0.1);
+      --info:           #4DA6FF;
+      --ease-in-out:    cubic-bezier(0.16, 1, 0.3, 1);
+      --z-drawer:       500;
+      --z-navbar:       400;
+      --z-toast:        999;
     }
+    body { font-family: 'Geist', sans-serif; background: var(--bg-deep); color: var(--text-primary); overflow-x: hidden; }
+    body::before { content: ''; position: fixed; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px); pointer-events: none; z-index: 9999; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-deep); }
+    ::-webkit-scrollbar-thumb { background: var(--border-lit); border-radius: 3px; }
 
-    body {
-      font-family: 'Geist', 'Helvetica Neue', sans-serif;
-      background: var(--bg-deep);
-      color: var(--text-primary);
-      min-height: 100vh;
-      -webkit-font-smoothing: antialiased;
-    }
+    /* === AUTH MODULE === */
+    #authContainer { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; position: relative; }
+    .auth-card { background: var(--bg-mid); border: 1px solid var(--border); width: 100%; max-width: 440px; padding: 40px 32px; }
+    .auth-header { text-align: center; margin-bottom: 36px; }
+    .auth-logo { width: 48px; height: 48px; background: var(--accent-dim); border: 1px solid rgba(46,204,113,0.3); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+    .auth-logo svg { width: 24px; height: 24px; stroke: var(--accent); }
+    .auth-title { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; }
+    .auth-sub { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text-secondary); margin-top: 4px; }
+    .input-group { margin-bottom: 20px; }
+    .input-label { font-size: 10px; font-family: 'IBM Plex Mono', monospace; color: var(--text-secondary); letter-spacing: 0.05em; margin-bottom: 6px; display: block; }
+    .auth-input { width: 100%; background: var(--bg-raised); border: 1px solid var(--border); padding: 12px 16px; color: var(--text-primary); font-size: 14px; outline: none; }
+    .auth-input:focus { border-color: var(--accent); }
+    .password-wrapper { position: relative; }
+    .toggle-password-btn { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-secondary); font-family: monospace; font-size: 11px; cursor: pointer; z-index: 2; }
+    .btn-auth { width: 100%; background: var(--accent); border: none; padding: 14px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; color: var(--bg-deep); cursor: pointer; margin-top: 8px; transition: background 150ms; }
+    .btn-auth:hover { background: #27ae60; }
+    .auth-toggle { text-align: center; margin-top: 24px; font-size: 12px; color: var(--text-secondary); }
+    .auth-toggle span { color: var(--accent); cursor: pointer; font-weight: 600; text-decoration: underline; }
+    .error-box { background: var(--danger-dim); border-left: 2px solid var(--danger); padding: 10px 14px; font-size: 12px; font-family: monospace; color: var(--danger-bright); margin-bottom: 20px; display: none; }
 
-    /* scanline texture */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* containers */
-    #authContainer {
-      position: relative;
-      z-index: 10;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-
-    #dashboardContainer {
-      position: relative;
-      z-index: 2;
-      display: none;
-    }
-
-    /* auth card brutalism */
-    .auth-card {
-      background: var(--bg-mid);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      box-shadow: var(--shadow-raised);
-      width: 100%;
-      max-width: 460px;
-      padding: 32px 28px;
-      backdrop-filter: blur(2px);
-      transition: all 0.2s var(--ease);
-    }
-
-    .auth-header {
-      text-align: center;
-      margin-bottom: 32px;
-    }
-
-    .auth-logo {
-      width: 52px;
-      height: 52px;
-      background: var(--accent-dim);
-      border: 1px solid rgba(46,204,113,0.3);
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 16px;
-    }
-
-    .auth-logo svg { width: 26px; height: 26px; stroke: var(--accent); }
-
-    .auth-title {
-      font-family: 'Syne', sans-serif;
-      font-size: 28px;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-    }
-
-    .auth-sub {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 10px;
-      color: var(--text-secondary);
-      margin-top: 6px;
-    }
-
-    .input-group {
-      margin-bottom: 18px;
-    }
-
-    .input-label {
-      font-size: 11px;
-      font-family: 'IBM Plex Mono', monospace;
-      color: var(--text-secondary);
-      letter-spacing: 0.08em;
-      margin-bottom: 6px;
-      display: block;
-    }
-
-    .auth-input {
-      width: 100%;
-      background: var(--bg-raised);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px 16px;
-      color: var(--text-primary);
-      font-size: 13px;
-      font-family: 'Geist', monospace;
-      transition: all 150ms;
-      outline: none;
-    }
-
-    .auth-input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px rgba(46,204,113,0.2);
-    }
-
-    .btn-auth {
-      width: 100%;
-      background: var(--accent);
-      border: none;
-      padding: 12px;
-      border-radius: 12px;
-      font-weight: 700;
-      font-family: 'Syne', sans-serif;
-      font-size: 14px;
-      color: #040A06;
-      cursor: pointer;
-      transition: all 150ms var(--ease);
-      margin-top: 8px;
-    }
-
-    .btn-auth:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(46,204,113,0.3); }
-
-    .auth-toggle {
-      text-align: center;
-      margin-top: 24px;
-      font-size: 12px;
-      color: var(--text-secondary);
-    }
-
-    .auth-toggle span {
-      color: var(--accent);
-      cursor: pointer;
-      font-weight: 600;
-      text-decoration: underline;
-    }
-
-    .error-message {
-      background: var(--danger-dim);
-      border-left: 3px solid var(--danger);
-      padding: 8px 12px;
-      font-size: 11px;
-      font-family: 'IBM Plex Mono', monospace;
-      color: var(--danger-bright);
-      border-radius: 8px;
-      margin-bottom: 16px;
-    }
-
-    /* dashboard reuse original styles (condensed for brevity) */
-    .app-shell { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
-    @media (max-width: 1024px) { .app-shell { grid-template-columns: 1fr; } .sidebar { display: none; } }
-    .sidebar { background: var(--bg-mid); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; }
-    .sidebar-brand { padding: 24px 20px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
-    .brand-shield { width: 38px; height: 38px; background: var(--accent-dim); border: 1px solid rgba(46,204,113,0.3); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
-    .brand-name { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 800; }
-    .status-strip { margin: 16px 20px; background: var(--accent-dim); border: 1px solid rgba(46,204,113,0.2); border-radius: 8px; padding: 10px 12px; display: flex; align-items: center; gap: 8px; }
-    .pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: pulseDot 2s infinite; }
-    @keyframes pulseDot { 0%, 100% { box-shadow: 0 0 0 0 rgba(46,204,113,0.5); } 50% { box-shadow: 0 0 0 5px rgba(46,204,113,0); } }
-    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; font-size: 13px; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: all 180ms var(--ease); border-left: 2px solid transparent; }
+    /* === DASHBOARD LAYOUT === */
+    #dashboardContainer { display: none; min-height: 100vh; }
+    .app-shell { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+    .mobile-header { display: none; background: var(--bg-mid); border-bottom: 1px solid var(--border); height: 56px; padding: 0 16px; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: var(--z-navbar); }
+    .hamburger { background: transparent; border: none; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .hamburger span { display: block; width: 20px; height: 2px; background: var(--text-primary); position: relative; }
+    .hamburger span::before, .hamburger span::after { content: ''; position: absolute; width: 20px; height: 2px; background: var(--text-primary); left: 0; transition: transform 150ms; }
+    .hamburger span::before { top: -6px; }
+    .hamburger span::after { bottom: -6px; }
+    .hamburger.open span { background: transparent; }
+    .hamburger.open span::before { transform: rotate(45deg); top: 0; }
+    .hamburger.open span::after { transform: rotate(-45deg); bottom: 0; }
+    .sidebar { background: var(--bg-mid); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; z-index: var(--z-drawer); transition: transform 300ms var(--ease-in-out); }
+    .sidebar-brand { padding: 24px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+    .brand-shield { width: 36px; height: 36px; background: var(--accent-dim); border: 1px solid rgba(46,204,113,0.3); display: flex; align-items: center; justify-content: center; }
+    .brand-name { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; }
+    .status-strip { margin: 16px 20px; background: var(--accent-dim); border: 1px solid rgba(46,204,113,0.15); padding: 10px 12px; display: flex; align-items: center; gap: 10px; }
+    .pulse-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } }
+    .nav-section { padding: 12px 20px 6px; font-family: monospace; font-size: 9px; color: var(--text-ghost); letter-spacing: 0.08em; text-transform: uppercase; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 12px 20px; font-size: 13px; font-weight: 500; color: var(--text-secondary); cursor: pointer; border-left: 2px solid transparent; }
     .nav-item.active { color: var(--accent); background: var(--accent-dim); border-left-color: var(--accent); }
     .sidebar-footer { margin-top: auto; border-top: 1px solid var(--border); padding: 16px 20px; }
-    .operator-chip { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; cursor: pointer; }
-    .logout-btn { margin-top: 12px; background: var(--danger-dim); border: 1px solid rgba(229,62,62,0.2); border-radius: 8px; padding: 8px 12px; font-size: 11px; font-family: 'IBM Plex Mono', monospace; text-align: center; cursor: pointer; color: var(--danger-bright); transition: all 150ms; }
-    .logout-btn:hover { background: rgba(229,62,62,0.2); }
-    .main-content { padding: 28px; }
-    .kpi-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 20px; }
-    @media (max-width: 1100px) { .kpi-grid { grid-template-columns: repeat(2,1fr); } }
-    .kpi-card { background: var(--bg-mid); border: 1px solid var(--border); border-radius: 16px; padding: 20px; }
-    .two-col, .three-col { display: grid; gap: 16px; margin-bottom: 16px; }
-    .two-col { grid-template-columns: 1fr 360px; }
-    @media (max-width: 1100px) { .two-col { grid-template-columns: 1fr; } }
-    .panel { background: var(--bg-mid); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
-    .panel-head { padding: 18px 20px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; }
-    .chart-wrap { padding: 16px 20px 20px; }
-    .geo-list { display: flex; flex-direction: column; gap: 8px; padding: 16px 20px 20px; }
-    .geo-row { display: flex; align-items: center; gap: 12px; background: var(--bg-raised); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; }
-    .events-list { max-height: 320px; overflow-y: auto; }
-    .event-row { display: flex; align-items: center; gap: 12px; padding: 12px 20px; border-bottom: 1px solid var(--border); }
-    .btn-primary { background: var(--accent); color: #040A06; padding: 0 18px; height: 40px; border-radius: 8px; font-weight: 600; border: none; cursor: pointer; }
-    .btn-ghost { background: var(--bg-raised); border: 1px solid var(--border); padding: 0 14px; height: 36px; border-radius: 8px; color: var(--text-secondary); cursor: pointer; }
-    .chat-messages { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; max-height: 260px; overflow-y: auto; }
-    .msg-ai { background: var(--bg-raised); border: 1px solid var(--border); border-radius: 4px 12px 12px 12px; padding: 10px 13px; font-size: 12px; max-width: 90%; }
-    .msg-user { align-self: flex-end; background: rgba(46,204,113,0.08); border-radius: 12px 4px 12px 12px; padding: 10px 13px; max-width: 88%; }
-    .chat-input-wrap { padding: 12px 16px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
-    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--bg-raised); border: 1px solid var(--border-lit); border-radius: 99px; padding: 8px 18px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; opacity: 0; transition: all 200ms; pointer-events: none; z-index: 9999; }
-    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-    .fab { display: none; }
-    @media (max-width: 768px) { .fab { display: flex; position: fixed; bottom: 20px; right: 20px; background: var(--accent); border-radius: 14px; width: 52px; height: 52px; align-items: center; justify-content: center; cursor: pointer; z-index: 100; } }
-    .sev-badge { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; }
-    .sev-crit { background: rgba(229,62,62,0.15); color: #FC8181; }
-    .sev-high { background: rgba(246,173,85,0.12); color: #FBD38D; }
+    .operator-chip { display: flex; align-items: center; gap: 10px; }
+    .operator-avatar { width: 32px; height: 32px; background: var(--bg-raised); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; font-family: monospace; }
+    .clearance-badge { margin-left: auto; font-family: monospace; font-size: 9px; color: var(--accent); border: 1px solid rgba(46,204,113,0.3); padding: 2px 4px; background: var(--accent-dim); }
+    .logout-btn { margin-top: 14px; width: 100%; background: var(--danger-dim); border: 1px solid rgba(255,77,77,0.2); padding: 8px; font-size: 11px; font-family: monospace; text-align: center; cursor: pointer; color: var(--danger-bright); }
+    .main-content { padding: 32px; max-width: 1600px; width: 100%; margin: 0 auto; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .kpi-card { background: var(--bg-mid); border: 1px solid var(--border); padding: 20px; }
+    .kpi-label { font-family: monospace; font-size: 9px; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 6px; }
+    .kpi-value { font-family: 'Syne', sans-serif; font-size: 30px; font-weight: 800; }
+    .kpi-delta { font-family: monospace; font-size: 10px; margin-top: 4px; color: var(--accent); }
+    .kpi-delta.warn { color: var(--warning); }
+    .layout-matrix { display: grid; grid-template-columns: 1fr 380px; gap: 16px; margin-bottom: 16px; }
+    .panel { background: var(--bg-mid); border: 1px solid var(--border); display: flex; flex-direction: column; }
+    .panel-head { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 800; }
+    .tab-group { display: flex; gap: 4px; }
+    .chart-tab { background: transparent; border: 1px solid var(--border); color: var(--text-secondary); font-family: monospace; font-size: 9px; padding: 4px 8px; cursor: pointer; }
+    .chart-tab.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+    .chart-frame { padding: 20px; position: relative; width: 100%; height: 260px; }
+    canvas#telemetryDataCanvas { width: 100%; height: 100%; }
+    .geo-list { display: flex; flex-direction: column; gap: 1px; background: var(--border); padding: 1px; }
+    .geo-row { display: flex; align-items: center; gap: 12px; background: var(--bg-mid); padding: 14px 20px; font-size: 13px; }
+    .geo-bar-bg { flex: 1; height: 3px; background: var(--bg-raised); margin: 0 12px; position: relative; }
+    .geo-bar-fill { height: 100%; background: var(--accent); }
+    .geo-bar-fill.crit { background: var(--danger); }
+    .geo-bar-fill.high { background: var(--warning); }
+    .events-container { height: 320px; overflow-y: auto; }
+    .event-row { display: flex; align-items: center; gap: 14px; padding: 14px 20px; border-bottom: 1px solid var(--border); transition: background 100ms; }
+    .event-row:hover { background: var(--bg-raised); }
+    .indicator-node { width: 8px; height: 8px; flex-shrink: 0; border-radius: 1px; }
+    .btn-action { background: var(--accent); color: var(--bg-deep); border: none; padding: 0 16px; height: 36px; font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; }
+    .btn-secondary { background: var(--bg-raised); border: 1px solid var(--border); color: var(--text-secondary); font-family: monospace; font-size: 10px; padding: 0 12px; height: 32px; cursor: pointer; }
+    .btn-secondary:hover { border-color: var(--border-lit); color: var(--text-primary); }
+    .ai-shell { display: flex; flex-direction: column; height: 320px; }
+    .ai-logs { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .log-block { max-width: 85%; padding: 10px 14px; font-size: 12px; line-height: 1.5; }
+    .log-block.system { background: var(--bg-raised); border: 1px solid var(--border); border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
+    .log-block.operator { background: var(--accent-dim); align-self: flex-end; border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
+    .log-tag { font-family: monospace; font-size: 9px; color: var(--accent); margin-bottom: 4px; display: block; }
+    .console-input-area { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; background: var(--bg-deep); }
+    .console-input { flex: 1; background: var(--bg-raised); border: 1px solid var(--border); padding: 0 14px; color: var(--text-primary); font-family: monospace; font-size: 12px; outline: none; }
+    .sev-badge { font-family: monospace; font-size: 9px; font-weight: 600; padding: 2px 6px; text-transform: uppercase; border: 1px solid transparent; }
+    .sev-badge.crit { background: var(--danger-dim); color: var(--danger-bright); border-color: rgba(255,77,77,0.3); }
+    .sev-badge.high { background: var(--warning-dim); color: var(--warning); border-color: rgba(255,165,0,0.3); }
+    .sev-badge.med  { background: var(--bg-raised); color: var(--text-secondary); border-color: var(--border); }
+    .toast-system { position: fixed; bottom: 24px; right: 24px; background: var(--bg-raised); border: 1px solid var(--border-lit); padding: 12px 20px; font-family: monospace; font-size: 11px; transform: translateY(100px); opacity: 0; transition: all 300ms var(--ease-in-out); pointer-events: none; z-index: var(--z-toast); }
+    .toast-system.active { transform: translateY(0); opacity: 1; }
+    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 450; }
+    @media (max-width: 1200px) { .layout-matrix { grid-template-columns: 1fr; } }
+    @media (max-width: 992px) {
+      .app-shell { grid-template-columns: 1fr; }
+      .mobile-header { display: flex; }
+      .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 260px; transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .sidebar-overlay.active { display: block; }
+      .kpi-grid { grid-template-columns: repeat(2,1fr); }
+    }
+    @media (max-width: 576px) { .kpi-grid { grid-template-columns: 1fr; } .main-content { padding: 16px; } }
   </style>
 </head>
 <body>
+<div id="systemToast" class="toast-system"></div>
+<div id="sidebarOverlay" class="sidebar-overlay"></div>
 
-<!-- AUTH MODULE (LOGIN/REGISTER) -->
+<!-- AUTHENTICATION CONTAINER -->
 <div id="authContainer">
-  <div class="auth-card" id="authCard">
+  <div class="auth-card">
     <div class="auth-header">
-      <div class="auth-logo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      </div>
-      <div class="auth-title">GUARDAI</div>
-      <div class="auth-sub">SECURITY ACCESS v4.2</div>
+      <div class="auth-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <div class="auth-title">GUARD AI</div>
+      <div class="auth-sub">SECURE ENTRY CONSOLE // v4.5</div>
     </div>
-    <div id="authError" class="error-message" style="display:none;"></div>
-    <form id="authForm">
-      <div id="dynamicFields"></div>
-      <button type="submit" class="btn-auth" id="submitAuthBtn">LOGIN</button>
+    <div id="authErrorBox" class="error-box"></div>
+    <form id="authPipelineForm">
+      <div id="authFormFields"></div>
+      <button type="submit" class="btn-auth" id="authActionSubmit">EXECUTE SIGN_IN</button>
     </form>
-    <div class="auth-toggle" id="toggleAuthMode">No account? <span id="toggleBtn">Register</span></div>
+    <div class="auth-toggle" id="authModeToggler">No active token? <span id="actionToggleTriggerLink">Register Profile</span></div>
   </div>
 </div>
 
-<!-- DASHBOARD CONTAINER (visible only after auth) -->
+<!-- DASHBOARD -->
 <div id="dashboardContainer">
+  <div class="mobile-header">
+    <div style="display:flex; align-items:center; gap:8px;"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" width="20" height="20"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span style="font-family:'Syne';font-weight:800;">GuardAI</span></div>
+    <button class="hamburger" id="mobileDrawerTrigger"><span></span></button>
+  </div>
   <div class="app-shell">
-    <aside class="sidebar">
-      <div class="sidebar-brand">
-        <div class="brand-shield"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-        <div><div class="brand-name">GuardAI</div><div style="font-size:9px;color:var(--accent);">v4.2 · SOC PLATFORM</div></div>
-      </div>
-      <div class="status-strip"><div class="pulse-dot"></div><div><div class="status-text">SYSTEMS NOMINAL</div><div class="status-subtext">All 12 sensors active</div></div></div>
-      <div class="nav-section">Monitoring</div>
-      <div class="nav-item active">📡 Dashboard</div>
-      <div class="nav-item">🛡️ Threat Intel <span style="margin-left:auto; background:var(--danger-dim); padding:2px 6px; border-radius:4px; font-size:10px;">3</span></div>
-      <div class="nav-item">⚡ Detection <span style="margin-left:auto; background:var(--accent-dim); padding:2px 6px; border-radius:4px;">12</span></div>
-      <div class="sidebar-footer">
-        <div class="operator-chip" id="operatorChip">
-          <div class="operator-avatar" id="userAvatar">AS</div>
-          <div><div id="operatorName">A. Sterling</div><div id="operatorRole" style="font-size:10px; color:var(--text-secondary);">SOC_ANALYST_L2</div></div>
-          <span class="clearance-badge" id="clearanceBadge">LVL-3</span>
-        </div>
-        <div class="logout-btn" id="logoutBtn">⏻ LOGOUT</div>
-      </div>
+    <aside class="sidebar" id="appNavigationDrawer">
+      <div class="sidebar-brand"><div class="brand-shield"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" width="20"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div><div class="brand-name">GuardAI</div><div style="font-size:9px;color:var(--accent);font-family:monospace;">CORE NODE // v4.5</div></div></div>
+      <div class="status-strip"><div class="pulse-dot"></div><div><div style="font-size:11px;font-weight:600;">TELEMETRY ONLINE</div><div style="font-size:9px;color:var(--text-secondary);">8 AGENTS CONVERGED</div></div></div>
+      <div class="nav-section">Core Command</div>
+      <div class="nav-item active">📡 Threat Matrix</div>
+      <div class="nav-item">🛡️ Perimeter Rules</div>
+      <div class="nav-item">📊 Identity Ledger</div>
+      <div class="sidebar-footer"><div class="operator-chip"><div class="operator-avatar" id="profileSessionAvatar">--</div><div><div id="profileSessionName" style="font-size:12px; font-weight:600;">Loading...</div><div id="profileSessionRole" style="font-size:9px; color:var(--text-secondary);">SEC_OPS</div></div><span class="clearance-badge" id="profileSessionClearance">LVL-1</span></div><button class="logout-btn" id="sessionDestroyTrigger">⏻ TERMINATE SESSION</button></div>
     </aside>
-
     <main class="main-content">
-      <div class="topbar" style="display:flex; justify-content:space-between; margin-bottom:28px;">
-        <div><div class="topbar-eyebrow" style="font-family:monospace; font-size:10px; color:var(--accent);">// SECURITY OPERATIONS CENTER</div><h1 style="font-family:'Syne'; font-size:26px;">Threat Intelligence</h1><p class="topbar-sub">Real-time AI-powered detection · <span id="clockDisplay">——</span></p></div>
-        <div style="display:flex; gap:12px;"><button class="btn-primary" id="exportBtn">📄 Export Report</button></div>
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px; margin-bottom:28px;">
+        <div><div style="font-family:monospace; font-size:10px; color:var(--accent); margin-bottom:4px;">// OPERATIONAL MATRIX ACTIVE</div><h1 style="font-family:'Syne'; font-size:28px; font-weight:800;">Security Intelligence Terminal</h1><p style="font-size:13px; color:var(--text-secondary);">Autonomous cluster stream protection · <span id="clockSync" style="font-family:monospace;">--:--:--</span></p></div>
+        <button class="btn-action" id="generationReportTrigger">GENERATE SYSTEM AUDIT</button>
       </div>
-
       <div class="kpi-grid">
-        <div class="kpi-card"><div class="kpi-label">Threats Blocked</div><div class="kpi-value" id="kpiBlocked">1,284</div><div class="kpi-delta up">▲ +12%</div></div>
-        <div class="kpi-card"><div class="kpi-label">Active Incidents</div><div class="kpi-value" id="kpiIncidents" style="color:var(--warning);">3</div><div class="kpi-delta warn">2 HIGH</div></div>
-        <div class="kpi-card"><div class="kpi-label">Avg Response</div><div class="kpi-value" id="kpiResponse" style="color:var(--info);">1.2s</div><div class="kpi-delta up">−0.3s</div></div>
-        <div class="kpi-card"><div class="kpi-label">AI Risk Score</div><div class="kpi-value" id="kpiRisk">92</div><div class="kpi-delta up">SECURE</div></div>
+        <div class="kpi-card"><div class="kpi-label">Blocks Executed</div><div class="kpi-value" id="hudMetricBlocked">4,129</div><div class="kpi-delta">// STREAM NOMINAL</div></div>
+        <div class="kpi-card"><div class="kpi-label">Active Vector Hooks</div><div class="kpi-value" id="hudMetricIncidents" style="color:var(--warning);">2</div><div class="kpi-delta warn">⚡ HIGH URGENCY</div></div>
+        <div class="kpi-card"><div class="kpi-label">Pipeline Delay</div><div class="kpi-value" id="hudMetricLatency" style="color:var(--info);">0.8ms</div><div class="kpi-delta" style="color:var(--info);">EDGE OPTIMIZED</div></div>
+        <div class="kpi-card"><div class="kpi-label">Node Confidence</div><div class="kpi-value" id="hudMetricRisk">98.4%</div><div class="kpi-delta">// VERIFIED CLUSTER</div></div>
       </div>
-
-      <div class="two-col">
-        <div class="panel"><div class="panel-head"><span>📈 Attack Vector Trends</span><div><button class="chart-tab active" data-range="7d">7D</button><button class="chart-tab" data-range="30d">30D</button><button class="chart-tab" data-range="90d">90D</button></div></div><div class="chart-wrap"><canvas id="attackChart" height="200"></canvas></div></div>
-        <div class="panel"><div class="panel-head"><span>🌍 Live Threat Origins</span><span style="font-size:9px;">LIVE · 3s ago</span></div><div class="geo-list" id="geoList"></div></div>
+      <div class="layout-matrix">
+        <div class="panel"><div class="panel-head"><span>VOLUMETRIC ATTACK VECTOR TIMELINE</span><div class="tab-group" id="chartTimeframeSwitchGroup"><button class="chart-tab active" data-span="7d">7D</button><button class="chart-tab" data-span="30d">30D</button><button class="chart-tab" data-span="90d">90D</button></div></div><div class="chart-frame"><canvas id="telemetryDataCanvas"></canvas></div></div>
+        <div class="panel"><div class="panel-head"><span>INGRESS REGION VECTOR GEOGRAPHY</span></div><div class="geo-list" id="geographyMetricTarget"></div></div>
       </div>
-      <div class="two-col">
-        <div class="panel"><div class="panel-head"><span>⚠️ Security Event Log</span><div><button class="btn-ghost" id="refreshEventsBtn" style="height:32px;">⟳ Refresh</button><button class="btn-ghost" id="clearEventsBtn" style="background:var(--danger-dim);">🗑 Clear All</button></div></div><div class="events-list" id="eventsList"></div></div>
-        <div class="panel"><div class="ai-panel"><div class="panel-head"><span>🧠 GuardAI Assistant</span><span class="live-chip" style="font-size:9px;">● ACTIVE</span></div><div class="chat-messages" id="chatMessages"><div class="msg-ai"><strong>All systems protected.</strong> Ask about threats, incidents, risk score.</div></div><div class="chat-input-wrap"><input class="chat-input" id="chatInput" placeholder="Query threat data, mitigations…"><button class="chat-send" id="chatSend" style="background:var(--accent); border:none; border-radius:10px; width:40px;">➤</button></div></div></div>
+      <div class="layout-matrix">
+        <div class="panel"><div class="panel-head"><span>REAL-TIME AUDIT BLOCK LOGS</span><button class="btn-secondary" id="eventFlushTrigger">FLUSH HISTORICAL STREAM</button></div><div class="events-container" id="eventRealtimeStreamTarget"></div></div>
+        <div class="panel"><div class="panel-head"><span>COGNITIVE INTELLIGENCE ASSISTANT</span></div><div class="ai-shell"><div class="ai-logs" id="aiAssistantDialogContainer"><div class="log-block system"><span class="log-tag">// AGENT_SYSTEM</span>Cluster parsing infrastructure initialized. Query telemetry analysis points.</div></div><div class="console-input-area"><input type="text" class="console-input" id="aiConsoleInputHook" placeholder="Input execution string (e.g., stats, flush, help)..."><button class="btn-action" id="aiConsoleDispatchTrigger" style="width:40px; padding:0;">➤</button></div></div></div>
       </div>
     </main>
   </div>
-  <button class="fab" id="fabBtn">📄</button>
 </div>
 
-<div id="toast" class="toast"><span id="toastText"></span></div>
-
 <script>
-  // ----- MOCK AUTH DB (LocalStorage) -----
-  let currentUser = null;
-  let dashboardActive = false;
-  let refreshInterval = null;
-  let attackChart = null;
-  
-  // Mock users storage
-  function loadUsers() {
-    let users = localStorage.getItem('guardai_users');
-    if (!users) {
-      const defaultUsers = [
-        { id: '1', email: 'admin@guardai.com', username: 'Sterling', password: 'admin123', role: 'L3', clearance: 'LVL-3' },
-        { id: '2', email: 'analyst@guardai.com', username: 'Riley', password: 'analyst123', role: 'L2', clearance: 'LVL-2' }
-      ];
-      localStorage.setItem('guardai_users', JSON.stringify(defaultUsers));
-      return defaultUsers;
-    }
-    return JSON.parse(users);
-  }
-
-  function saveUsers(users) { localStorage.setItem('guardai_users', JSON.stringify(users)); }
-
-  let usersDb = loadUsers();
-
-  // Helper: toast
-  function toastMsg(msg, isError = false) {
-    const toast = document.getElementById('toast');
-    document.getElementById('toastText').innerText = msg;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2800);
-  }
-
-  // Dashboard data models (same as original)
-  const CHART_DATA = {
-    "7d":  { labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], brute: [24,32,28,45,52,38,41], malware: [8,12,10,18,22,14,16], phish: [5,7,6,9,11,8,10] },
-    "30d": { labels: ['1d','4d','7d','10d','13d','16d','19d','22d','25d','28d'], brute: [120,148,132,165,180,142,158,172,161,175], malware: [40,55,48,72,80,58,65,70,62,68], phish: [22,30,28,35,42,32,38,40,36,44] },
-    "90d": { labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep'], brute:[410,480,520,490,560,600,580,620,640], malware:[140,170,190,165,200,220,210,235,245], phish:[80,95,105,92,115,125,118,130,140] }
+  // --------------------------------------------------------------
+  // STORAGE & CORE STATE
+  // --------------------------------------------------------------
+  const StorageCore = {
+    getUsers: () => JSON.parse(localStorage.getItem('guardai_vault_profiles')) || [
+      { id: '100', email: 'admin@guardai.com', username: 'Sterling', secret: 'admin123', role: 'PLATFORM_LEAD', level: 'LVL-3' },
+      { id: '101', email: 'ops@guardai.com', username: 'Vance', secret: 'ops123', role: 'SOC_ANALYST', level: 'LVL-2' }
+    ],
+    saveUsers: (data) => localStorage.setItem('guardai_vault_profiles', JSON.stringify(data)),
+    setSession: (profile) => localStorage.setItem('guardai_active_token', JSON.stringify(profile)),
+    getSession: () => { try { return JSON.parse(localStorage.getItem('guardai_active_token')); } catch(e) { return null; } },
+    clearSession: () => localStorage.removeItem('guardai_active_token')
   };
-  const GEO_THREATS = [ { flag:'🇨🇳', country:'China', ip:'185.142.53.12', sev:'CRIT', sevClass:'sev-crit', pct:85 }, { flag:'🇷🇺', country:'Russia', ip:'45.79.22.18', sev:'HIGH', sevClass:'sev-high', pct:70 }, { flag:'🇺🇦', country:'Ukraine', ip:'103.56.89.2', sev:'MED', sevClass:'sev-med', pct:45 }, { flag:'🇧🇷', country:'Brazil', ip:'177.23.14.99', sev:'MED', sevClass:'sev-med', pct:38 }, { flag:'🇺🇸', country:'USA (VPN)', ip:'23.45.67.89', sev:'LOW', sevClass:'sev-low', pct:20 } ];
-  let EVENTS_BASE = [ { icon:'key', color:'var(--danger-dim)', stroke:'#FC8181', sev:'HIGH', sevClass:'sev-high', title:'Brute-force SSH attempt', src:'185.142.53.12', time:'2m ago' }, { icon:'virus', color:'rgba(220,38,38,0.15)', stroke:'#FC8181', sev:'CRIT', sevClass:'sev-crit', title:'Ransomware signature blocked', src:'internal', time:'12m ago' }, { icon:'api', color:'var(--warning-dim)', stroke:'#F6AD55', sev:'MED', sevClass:'sev-med', title:'Excessive API rate limit', src:'45.79.22.18', time:'34m ago' } ];
-  let events = [...EVENTS_BASE];
-  let blocked = 1284, incidents = 3, respTime = 1.2, risk = 92;
-  let activeRange = '7d';
 
-  function renderGeo() { document.getElementById('geoList').innerHTML = GEO_THREATS.map(g => `<div class="geo-row"><span>${g.flag}</span><div><div>${g.country}</div><div class="geo-ip" style="font-size:10px;">${g.ip}</div></div><div style="flex:1; height:4px; background:var(--border); border-radius:2px;"><div style="width:${g.pct}%; height:100%; background:${g.sev==='CRIT'?'var(--danger)':'var(--warning)'}; border-radius:2px;"></div></div><span class="sev-badge ${g.sevClass}">${g.sev}</span></div>`).join(''); }
-  function renderEvents() { document.getElementById('eventsList').innerHTML = events.map(e => `<div class="event-row"><div style="width:32px;height:32px;background:${e.color};border-radius:8px;"></div><div style="flex:1"><div>${e.title}</div><div style="font-size:10px;">${e.src}</div></div><div><span class="sev-badge ${e.sevClass}">${e.sev}</span><div style="font-size:9px;">${e.time}</div></div></div>`).join(''); }
-  function updateKPIs() { document.getElementById('kpiBlocked').innerText = blocked.toLocaleString(); document.getElementById('kpiIncidents').innerText = incidents; document.getElementById('kpiResponse').innerText = respTime+'s'; document.getElementById('kpiRisk').innerText = Math.round(risk); }
-  
-  function renderChart(range, animate=true) {
-    const ctx = document.getElementById('attackChart').getContext('2d');
-    const d = CHART_DATA[range];
-    if (attackChart) attackChart.destroy();
-    attackChart = new Chart(ctx, {
-      type: 'line', data: { labels: d.labels, datasets: [{ label:'Brute-Force', data:d.brute, borderColor:'#E53E3E', tension:0.35, fill:true, backgroundColor:'rgba(229,62,62,0.05)' },{ label:'Malware', data:d.malware, borderColor:'#F6AD55', fill:true },{ label:'Phishing', data:d.phish, borderColor:'#63B3ED', fill:true }] },
-      options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { labels: { color:'#7A9980', font:{size:10} } } }, scales: { y: { ticks: { color:'#3A5040' }, grid: { color:'rgba(26,40,32,0.6)' } }, x: { ticks: { color:'#3A5040' } } } }
+  let activeSession = null;
+  let chartInstance = null;
+  let currentSpan = '7d';
+  let telemetryInterval = null;
+  let authMode = 'login'; // 'login' or 'register'
+
+  // Mock data models
+  const CHART_DATA = {
+    "7d":  { axis: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], dDoS: [14,22,19,35,42,28,31], kernel: [4,9,7,12,18,11,13] },
+    "30d": { axis: ['P1','P4','P7','P10','P13','P16','P19','P22','P25','P28'], dDoS: [90,110,95,130,150,115,120,140,135,145], kernel: [30,42,35,55,68,48,52,60,55,62] },
+    "90d": { axis: ['M1','M2','M3'], dDoS: [340,410,480], kernel: [110,145,185] }
+  };
+  const GEO_BASE = [
+    { flag: '🌐', node: 'Edge Node 01 (US_WEST)', ip: '198.51.100.42', code: 'CRIT', css: 'crit', depth: 88 },
+    { flag: '🌐', node: 'Edge Node 04 (EU_CENTRAL)', ip: '203.0.113.118', code: 'HIGH', css: 'high', depth: 62 },
+    { flag: '🌐', node: 'Edge Node 09 (AP_SOUTH)', ip: '192.0.2.251', code: 'MED', css: 'med', depth: 31 }
+  ];
+  let eventLogs = [
+    { type: 'crit', code: 'CRIT', details: 'Kernel level execution hook blocked', origin: '198.51.100.42', age: '1m ago' },
+    { type: 'high', code: 'HIGH', details: 'Volumetric ingress buffer overload', origin: '203.0.113.118', age: '8m ago' }
+  ];
+
+  // helpers
+  function showToast(msg) {
+    const toast = document.getElementById('systemToast');
+    toast.innerText = `// NOTICE: ${msg.toUpperCase()}`;
+    toast.classList.add('active');
+    setTimeout(() => toast.classList.remove('active'), 3000);
+  }
+
+  function renderGeo() {
+    const container = document.getElementById('geographyMetricTarget');
+    if (!container) return;
+    container.innerHTML = GEO_BASE.map(g => `
+      <div class="geo-row">
+        <span style="font-size:16px;">${g.flag}</span>
+        <div><div style="font-weight:600;">${g.node}</div><div style="font-family:monospace; font-size:10px;">${g.ip}</div></div>
+        <div class="geo-bar-bg"><div class="geo-bar-fill ${g.css}" style="width:${g.depth}%;"></div></div>
+        <span class="sev-badge ${g.css}">${g.code}</span>
+      </div>
+    `).join('');
+  }
+
+  function renderEvents() {
+    const target = document.getElementById('eventRealtimeStreamTarget');
+    if (!target) return;
+    if (eventLogs.length === 0) { target.innerHTML = `<div style="padding:32px; text-align:center; color:var(--text-ghost);">// NO ACTIVE THREAT EVENTS</div>`; return; }
+    target.innerHTML = eventLogs.map(ev => `
+      <div class="event-row">
+        <div class="indicator-node" style="background:${ev.type === 'crit' ? 'var(--danger)' : ev.type === 'high' ? 'var(--warning)' : 'var(--text-ghost)'};"></div>
+        <div style="flex:1;"><div style="font-weight:500;">${ev.details}</div><div style="font-family:monospace; font-size:10px;">ORIGIN: ${ev.origin}</div></div>
+        <div><span class="sev-badge ${ev.type}">${ev.code}</span><div style="font-size:9px; color:var(--text-ghost);">${ev.age}</div></div>
+      </div>
+    `).join('');
+  }
+
+  function renderChart(span) {
+    const canvas = document.getElementById('telemetryDataCanvas');
+    if (!canvas) return;
+    const data = CHART_DATA[span];
+    if (chartInstance) chartInstance.destroy();
+    chartInstance = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels: data.axis,
+        datasets: [
+          { label: 'Volumetric Brute', data: data.dDoS, borderColor: '#FF4D4D', borderWidth: 2, tension: 0.1, pointRadius: 2, fill: false },
+          { label: 'Kernel Anomalies', data: data.kernel, borderColor: '#2ECC71', borderWidth: 2, tension: 0.1, pointRadius: 2, fill: false }
+        ]
+      },
+      options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { labels: { color: '#7FA387', font: { size: 10, family: 'monospace' } } } }, scales: { y: { grid: { color: '#19261E' }, ticks: { color: '#3D5444' } }, x: { ticks: { color: '#3D5444' } } } }
     });
   }
 
-  function refreshAllData() {
-    blocked += Math.floor(Math.random() * 18);
-    incidents = Math.max(1, incidents + (Math.random() > 0.7 ? 1 : 0));
-    respTime = parseFloat((respTime + (Math.random() * 0.2 - 0.1)).toFixed(1));
-    risk = Math.min(100, Math.max(60, risk + (Math.random() * 3 - 1.5)));
-    const newEvent = { icon:'key', color:'var(--warning-dim)', stroke:'#F6AD55', sev:'HIGH', sevClass:'sev-high', title:'Suspicious inbound connection', src:`${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.12.9`, time:'just now' };
-    events.unshift(newEvent);
-    if (events.length > 7) events.pop();
-    updateKPIs(); renderEvents(); renderChart(activeRange, false);
-    toastMsg("Threat intel refreshed");
-  }
-
-  function startAutoRefresh() { if (refreshInterval) clearInterval(refreshInterval); refreshInterval = setInterval(() => { if (dashboardActive) refreshAllData(); }, 30000); }
-  function stopAutoRefresh() { if (refreshInterval) { clearInterval(refreshInterval); refreshInterval = null; } }
-
-  function resetDashboard() {
-    if (attackChart) { attackChart.destroy(); attackChart = null; }
-    blocked = 1284; incidents = 3; respTime = 1.2; risk = 92; events = [...EVENTS_BASE];
-    updateKPIs(); renderEvents(); renderGeo(); renderChart('7d', false); activeRange = '7d';
-  }
-
-  // AI chat simulation
-  function getAIReply(query) {
-    const q = query.toLowerCase();
-    if (q.match(/threat|attack/)) return `<strong>Top vectors:</strong> Brute-force 41%, Malware 21% — MFA recommended.`;
-    if (q.match(/risk|score/)) return `<strong>AI Risk Score: ${Math.round(risk)}/100</strong> · posture SECURE.`;
-    if (q.match(/incident/)) return `<strong>${incidents} active incidents</strong> · ransomware variant contained.`;
-    if (q.match(/response/)) return `⏱️ Avg response time: ${respTime}s. P95 isolation 2.1s.`;
-    return `GuardAI online. Ask about "threats", "risk score", "incidents" or "response time".`;
-  }
-
-  function appendChat(msg, isUser) {
-    const container = document.getElementById('chatMessages');
-    const div = document.createElement('div');
-    div.className = isUser ? 'msg-user' : 'msg-ai';
-    div.innerHTML = isUser ? msg : `<div class="msg-prefix" style="font-size:9px;">// GUARDAI</div>${msg}`;
-    container.appendChild(div); container.scrollTop = container.scrollHeight;
-  }
-
-  // Dashboard event binding (delegation on dashboardContainer)
-  function bindDashboardEvents() {
-    const dash = document.getElementById('dashboardContainer');
-    if (!dash) return;
-    dash.addEventListener('click', (e) => {
-      if (!dashboardActive) return;
-      const target = e.target.closest('.chart-tab');
-      if (target && target.dataset.range) { activeRange = target.dataset.range; renderChart(activeRange); toastMsg(`Chart: ${activeRange.toUpperCase()}`); return; }
-      if (target.closest('#refreshEventsBtn')) { refreshAllData(); return; }
-      if (target.closest('#clearEventsBtn')) { events = [...EVENTS_BASE]; renderEvents(); toastMsg("Event log cleared"); return; }
-      if (target.closest('#exportBtn') || target.closest('#fabBtn')) { toastMsg("Generating GuardAI_Report.pdf…"); setTimeout(()=>toastMsg("Report ready"), 1500); return; }
-    });
-    const sendBtn = document.getElementById('chatSend');
-    const chatInput = document.getElementById('chatInput');
-    if (sendBtn) sendBtn.addEventListener('click', () => { const q = chatInput.value.trim(); if(q) { appendChat(q, true); chatInput.value = ''; setTimeout(()=> appendChat(getAIReply(q), false), 300); } });
-    if (chatInput) chatInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendBtn.click(); });
-  }
-
-  // Initialize dashboard after login
-  function enableDashboard(user) {
-    currentUser = user;
-    dashboardActive = true;
-    document.getElementById('dashboardContainer').style.display = 'block';
-    document.getElementById('authContainer').style.display = 'none';
-    // update sidebar with user info
-    document.getElementById('operatorName').innerText = user.username;
-    document.getElementById('operatorRole').innerText = user.role === 'L3' ? 'SOC_LEAD' : 'SOC_ANALYST';
-    document.getElementById('clearanceBadge').innerText = user.clearance;
-    document.getElementById('userAvatar').innerText = user.username.substring(0,2).toUpperCase();
-    resetDashboard();
-    renderGeo();
-    startAutoRefresh();
-    toastMsg(`Welcome back, ${user.username}`);
-    // clock
-    setInterval(() => { if(dashboardActive) document.getElementById('clockDisplay').innerText = new Date().toLocaleTimeString('en-US', { hour12: false })+' UTC'; }, 1000);
-  }
-
-  function disableDashboard() {
-    dashboardActive = false;
-    stopAutoRefresh();
-    if (attackChart) { attackChart.destroy(); attackChart = null; }
-    document.getElementById('dashboardContainer').style.display = 'none';
-    document.getElementById('authContainer').style.display = 'flex';
-    currentUser = null;
-  }
-
-  // AUTH logic
-  let authMode = 'login'; // login / register
-
-  function switchMode() {
-    authMode = authMode === 'login' ? 'register' : 'login';
-    renderAuthForm();
-  }
-
-  function renderAuthForm() {
-    const dynamic = document.getElementById('dynamicFields');
-    const submitBtn = document.getElementById('submitAuthBtn');
-    const toggleText = document.getElementById('toggleBtn');
-    if (authMode === 'login') {
-      dynamic.innerHTML = `<div class="input-group"><label class="input-label">EMAIL</label><input type="email" id="loginEmail" class="auth-input" placeholder="admin@guardai.com" required></div><div class="input-group"><label class="input-label">PASSWORD</label><input type="password" id="loginPassword" class="auth-input" placeholder="••••••" required></div>`;
-      submitBtn.innerText = 'LOGIN';
-      toggleText.innerText = 'Register';
-    } else {
-      dynamic.innerHTML = `<div class="input-group"><label class="input-label">USERNAME</label><input type="text" id="regName" class="auth-input" placeholder="Agent" required></div><div class="input-group"><label class="input-label">EMAIL</label><input type="email" id="regEmail" class="auth-input" placeholder="agent@guardai.com" required></div><div class="input-group"><label class="input-label">PASSWORD</label><input type="password" id="regPass" class="auth-input" required></div><div class="input-group"><label class="input-label">CONFIRM</label><input type="password" id="regConfirm" class="auth-input" required></div>`;
-      submitBtn.innerText = 'REGISTER';
-      toggleText.innerText = 'Login';
+  function refreshSimulation() {
+    const blockedSpan = document.getElementById('hudMetricBlocked');
+    if (blockedSpan) {
+      let val = parseInt(blockedSpan.innerText.replace(/,/g, '')) || 4129;
+      blockedSpan.innerText = (val + Math.floor(Math.random() * 4)).toLocaleString();
+    }
+    if (Math.random() > 0.65) {
+      const newEvent = {
+        type: Math.random() > 0.6 ? 'high' : 'med',
+        code: Math.random() > 0.6 ? 'HIGH' : 'MED',
+        details: 'Heuristic anomaly pattern sequence isolated',
+        origin: ['198.51.100.12', '203.0.113.84', '192.0.2.4'][Math.floor(Math.random()*3)],
+        age: 'just now'
+      };
+      eventLogs.unshift(newEvent);
+      if (eventLogs.length > 15) eventLogs.pop();
+      renderEvents();
     }
   }
 
-  function handleAuthSubmit(e) {
-    e.preventDefault();
-    const errorDiv = document.getElementById('authError');
-    errorDiv.style.display = 'none';
+  // AI Assistant
+  function processAIQuery(input) {
+    const q = input.toLowerCase().trim();
+    if (q === 'stats') return `Telemetry matrix: avg pipeline 0.8ms, 0% packet loss, 4,200+ blocks in last hour.`;
+    if (q === 'flush') { eventLogs = []; renderEvents(); return `Audit event buffer flushed.`; }
+    if (q === 'help') return `Available commands: stats, flush, help. Or ask about threats.`;
+    return `Unknown command. Type "help" for available operations.`;
+  }
+
+  function sendAIMessage() {
+    const input = document.getElementById('aiConsoleInputHook');
+    const chatBox = document.getElementById('aiAssistantDialogContainer');
+    if (!input || !chatBox) return;
+    const text = input.value.trim();
+    if (!text) return;
+    const userDiv = document.createElement('div'); userDiv.className = 'log-block operator';
+    userDiv.innerHTML = `<span class="log-tag">// OPERATOR_${activeSession ? activeSession.username.toUpperCase() : 'USER'}</span>${text}`;
+    chatBox.appendChild(userDiv);
+    input.value = '';
+    chatBox.scrollTop = chatBox.scrollHeight;
+    setTimeout(() => {
+      const reply = processAIQuery(text);
+      const sysDiv = document.createElement('div'); sysDiv.className = 'log-block system';
+      sysDiv.innerHTML = `<span class="log-tag">// AGENT_SYSTEM</span>${reply}`;
+      chatBox.appendChild(sysDiv);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }, 300);
+  }
+
+  // -------------------- AUTH LOGIC (fixed password toggle, mode switching, no bugs) --------------------
+  function renderAuthForm() {
+    const fieldsDiv = document.getElementById('authFormFields');
+    const submitBtn = document.getElementById('authActionSubmit');
+    const toggleContainer = document.getElementById('authModeToggler');
+    if (!fieldsDiv) return;
     if (authMode === 'login') {
-      const email = document.getElementById('loginEmail').value.trim();
-      const pwd = document.getElementById('loginPassword').value.trim();
-      const user = usersDb.find(u => u.email === email && u.password === pwd);
-      if (!user) { errorDiv.innerText = 'Invalid credentials.'; errorDiv.style.display = 'block'; return; }
-      enableDashboard(user);
+      fieldsDiv.innerHTML = `
+        <div class="input-group"><label class="input-label">OPERATOR IDENTITY EMAIL</label><input type="email" id="loginEmailField" class="auth-input" value="admin@guardai.com" required></div>
+        <div class="input-group"><label class="input-label">SECURITY CRYPTO KEY</label><div class="password-wrapper"><input type="password" id="loginPassField" class="auth-input" value="admin123" required><button type="button" class="toggle-password-btn" data-target="loginPassField">SHOW</button></div></div>
+      `;
+      submitBtn.innerText = 'EXECUTE SYSTEM ACCESS';
+      toggleContainer.innerHTML = `No verified token? <span id="actionToggleTriggerLink">Register Security Key</span>`;
     } else {
-      const name = document.getElementById('regName').value.trim();
-      const email = document.getElementById('regEmail').value.trim();
-      const pwd = document.getElementById('regPass').value;
-      const confirm = document.getElementById('regConfirm').value;
-      if (!name || !email || !pwd) { errorDiv.innerText = 'All fields required'; errorDiv.style.display = 'block'; return; }
-      if (pwd !== confirm) { errorDiv.innerText = 'Passwords do not match'; errorDiv.style.display = 'block'; return; }
-      if (pwd.length < 4) { errorDiv.innerText = 'Password min 4 chars'; errorDiv.style.display = 'block'; return; }
-      if (usersDb.find(u => u.email === email)) { errorDiv.innerText = 'Email already registered'; errorDiv.style.display = 'block'; return; }
-      const newUser = { id: Date.now().toString(), email, username: name, password: pwd, role: 'L2', clearance: 'LVL-2' };
-      usersDb.push(newUser);
-      saveUsers(usersDb);
-      toastMsg('Registration successful! Please login.');
+      fieldsDiv.innerHTML = `
+        <div class="input-group"><label class="input-label">ASSIGN CALLSIGN</label><input type="text" id="regNameField" class="auth-input" placeholder="AgentCallsign" required></div>
+        <div class="input-group"><label class="input-label">OPERATOR EMAIL</label><input type="email" id="regEmailField" class="auth-input" placeholder="agent@guardai.com" required></div>
+        <div class="input-group"><label class="input-label">GENERATE CRYPTO KEY</label><div class="password-wrapper"><input type="password" id="regPassField" class="auth-input" placeholder="min 6 chars" required><button type="button" class="toggle-password-btn" data-target="regPassField">SHOW</button></div></div>
+      `;
+      submitBtn.innerText = 'PROVISION ENCRYPTED ACCOUNT';
+      toggleContainer.innerHTML = `Token active? <span id="actionToggleTriggerLink">Return to Authorization</span>`;
+    }
+
+    // attach password toggle (secure & independent)
+    document.querySelectorAll('.toggle-password-btn').forEach(btn => {
+      btn.removeEventListener('click', window._toggleHandler);
+      const targetId = btn.getAttribute('data-target');
+      const handler = () => {
+        const targetInput = document.getElementById(targetId);
+        if (targetInput) {
+          const newType = targetInput.type === 'password' ? 'text' : 'password';
+          targetInput.type = newType;
+          btn.innerText = newType === 'password' ? 'SHOW' : 'HIDE';
+        }
+      };
+      btn.addEventListener('click', handler);
+      window._toggleHandler = handler;
+    });
+
+    const linkSpan = document.getElementById('actionToggleTriggerLink');
+    if (linkSpan) linkSpan.onclick = () => { authMode = authMode === 'login' ? 'register' : 'login'; renderAuthForm(); };
+  }
+
+  async function handleAuthSubmit(e) {
+    e.preventDefault();
+    const errorDiv = document.getElementById('authErrorBox');
+    errorDiv.style.display = 'none';
+    errorDiv.innerText = '';
+    const users = StorageCore.getUsers();
+
+    if (authMode === 'login') {
+      const email = document.getElementById('loginEmailField')?.value.trim();
+      const pass = document.getElementById('loginPassField')?.value;
+      if (!email || !pass) { errorDiv.innerText = 'ERR_MISSING_CREDENTIALS'; errorDiv.style.display = 'block'; return; }
+      const match = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.secret === pass);
+      if (!match) { errorDiv.innerText = 'ERR_CRYPTO_REJECTION: Invalid email or key.'; errorDiv.style.display = 'block'; return; }
+      startDashboardSession(match);
+    } else {
+      const name = document.getElementById('regNameField')?.value.trim();
+      const email = document.getElementById('regEmailField')?.value.trim();
+      const pass = document.getElementById('regPassField')?.value;
+      if (!name || !email || !pass) { errorDiv.innerText = 'All fields required'; errorDiv.style.display = 'block'; return; }
+      if (pass.length < 6) { errorDiv.innerText = 'Key requires min 6 characters'; errorDiv.style.display = 'block'; return; }
+      if (users.some(u => u.email.toLowerCase() === email.toLowerCase())) { errorDiv.innerText = 'Email already provisioned'; errorDiv.style.display = 'block'; return; }
+      const newUser = { id: Date.now().toString(), email, username: name, secret: pass, role: 'SOC_ANALYST', level: 'LVL-2' };
+      users.push(newUser);
+      StorageCore.saveUsers(users);
+      showToast('Registration success. Please log in.');
       authMode = 'login';
       renderAuthForm();
     }
   }
 
-  // logout listener
-  document.getElementById('logoutBtn')?.addEventListener('click', () => { disableDashboard(); });
+  function startDashboardSession(user) {
+    activeSession = user;
+    StorageCore.setSession(user);
+    document.getElementById('authContainer').style.display = 'none';
+    document.getElementById('dashboardContainer').style.display = 'block';
+    document.getElementById('profileSessionAvatar').innerText = user.username.substring(0,2).toUpperCase();
+    document.getElementById('profileSessionName').innerText = user.username;
+    document.getElementById('profileSessionRole').innerText = user.role;
+    document.getElementById('profileSessionClearance').innerText = user.level;
+    renderGeo();
+    renderEvents();
+    renderChart(currentSpan);
+    if (telemetryInterval) clearInterval(telemetryInterval);
+    telemetryInterval = setInterval(refreshSimulation, 5500);
+    showToast(`Terminal link established // ${user.username}`);
+  }
 
-  // initial check
-  function checkAutoLogin() {
-    const storedUser = localStorage.getItem('guardai_last_user');
-    if (storedUser) {
-      try {
-        const parsed = JSON.parse(storedUser);
-        const exists = usersDb.find(u => u.id === parsed.id);
-        if (exists) { enableDashboard(exists); return; }
-      } catch(e) {}
+  function killSession() {
+    if (telemetryInterval) { clearInterval(telemetryInterval); telemetryInterval = null; }
+    if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+    StorageCore.clearSession();
+    activeSession = null;
+    document.getElementById('dashboardContainer').style.display = 'none';
+    document.getElementById('authContainer').style.display = 'flex';
+    authMode = 'login';
+    renderAuthForm();
+    document.getElementById('appNavigationDrawer')?.classList.remove('open');
+    document.getElementById('sidebarOverlay')?.classList.remove('active');
+    document.getElementById('mobileDrawerTrigger')?.classList.remove('open');
+    showToast('Session terminated securely');
+  }
+
+  // UI / Drawer helpers
+  function toggleDrawer(open) {
+    const drawer = document.getElementById('appNavigationDrawer');
+    const overlay = document.getElementById('sidebarOverlay');
+    const burger = document.getElementById('mobileDrawerTrigger');
+    if (!drawer) return;
+    if (open) { drawer.classList.add('open'); overlay?.classList.add('active'); burger?.classList.add('open'); }
+    else { drawer.classList.remove('open'); overlay?.classList.remove('active'); burger?.classList.remove('open'); }
+  }
+
+  // -------------------- BOOTSTRAP & EVENT BINDINGS --------------------
+  document.addEventListener('DOMContentLoaded', () => {
+    renderAuthForm();
+    document.getElementById('authPipelineForm')?.addEventListener('submit', handleAuthSubmit);
+    document.getElementById('sessionDestroyTrigger')?.addEventListener('click', killSession);
+    document.getElementById('mobileDrawerTrigger')?.addEventListener('click', () => toggleDrawer(true));
+    document.getElementById('sidebarOverlay')?.addEventListener('click', () => toggleDrawer(false));
+    document.getElementById('eventFlushTrigger')?.addEventListener('click', () => { eventLogs = []; renderEvents(); showToast("Event buffer flushed"); });
+    document.getElementById('generationReportTrigger')?.addEventListener('click', () => { showToast("Compiling audit log..."); setTimeout(() => showToast("Export ready: guardai_audit.json"), 1500); });
+    document.getElementById('aiConsoleDispatchTrigger')?.addEventListener('click', sendAIMessage);
+    document.getElementById('aiConsoleInputHook')?.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendAIMessage(); });
+    document.getElementById('chartTimeframeSwitchGroup')?.addEventListener('click', (e) => {
+      const btn = e.target.closest('.chart-tab');
+      if(!btn || !btn.dataset.span) return;
+      document.querySelectorAll('#chartTimeframeSwitchGroup .chart-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentSpan = btn.dataset.span;
+      renderChart(currentSpan);
+      showToast(`Timeline scaled: ${currentSpan.toUpperCase()}`);
+    });
+    setInterval(() => {
+      const clockSpan = document.getElementById('clockSync');
+      if(clockSpan) clockSpan.innerText = new Date().toISOString().replace('T',' ').substring(0,19) + ' UTC';
+    }, 1000);
+    // restore session if exists
+    const saved = StorageCore.getSession();
+    if(saved) {
+      const userExists = StorageCore.getUsers().find(u => u.id === saved.id);
+      if(userExists) startDashboardSession(userExists);
     }
-    disableDashboard();
-  }
-
-  // attach global auth handler
-  document.getElementById('authForm')?.addEventListener('submit', handleAuthSubmit);
-  document.getElementById('toggleBtn')?.addEventListener('click', switchMode);
-
-  // persist last user after login (optional)
-  function patchEnableDashboard() {
-    const origEnable = enableDashboard;
-    window.enableDashboard = function(user) {
-      localStorage.setItem('guardai_last_user', JSON.stringify({ id: user.id }));
-      origEnable(user);
-    };
-    enableDashboard = window.enableDashboard;
-  }
-  patchEnableDashboard();
-  bindDashboardEvents();
-  renderAuthForm();
-  checkAutoLogin();
-  // clock
-  setInterval(() => { if(document.getElementById('clockDisplay') && dashboardActive) document.getElementById('clockDisplay').innerText = new Date().toLocaleTimeString('en-US', { hour12: false })+' UTC'; }, 1000);
+  });
 </script>
 </body>
 </html>
