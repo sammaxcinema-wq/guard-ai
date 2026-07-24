@@ -1,2338 +1,2239 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>GuardAI v4.5 | Sovereign Security Terminal — Full-Stack Auth</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Guardian AI · Enterprise Endpoint Security</title>
+    <!-- Google Fonts: Inter + Oswald -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" />
+    <script src="https://unpkg.com/lucide@latest">
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;800&family=IBM+Plex+Mono:wght@400;500;600&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        * {
+        /* ============================================================
+           DESIGN TOKENS (extended with Oswald)
+           ============================================================ */
+        :root {
+            --bg-base: #080C14;
+            --bg-surface: #0D131F;
+            --bg-elevated: #141C2B;
+            --bg-card: #0F1729;
+            --bg-hover: #1A2438;
+            --bg-glass: rgba(13, 19, 31, 0.72);
+
+            --border-muted: rgba(255, 255, 255, 0.06);
+            --border-subtle: rgba(255, 255, 255, 0.10);
+            --border-accent: rgba(255, 255, 255, 0.14);
+            --border-focus: #3B82F6;
+
+            --primary: #3B82F6;
+            --primary-dim: rgba(59, 130, 246, 0.18);
+            --primary-glow: rgba(59, 130, 246, 0.30);
+
+            --danger: #EF4444;
+            --danger-dim: rgba(239, 68, 68, 0.18);
+            --danger-glow: rgba(239, 68, 68, 0.30);
+
+            --success: #10B981;
+            --success-dim: rgba(16, 185, 129, 0.18);
+            --success-glow: rgba(16, 185, 129, 0.30);
+
+            --warning: #F59E0B;
+            --warning-dim: rgba(245, 158, 11, 0.18);
+            --warning-glow: rgba(245, 158, 11, 0.30);
+
+            --info: #8B5CF6;
+            --info-dim: rgba(139, 92, 246, 0.18);
+
+            --text-main: #F1F5F9;
+            --text-secondary: #CBD5E1;
+            --text-muted: #94A3B8;
+            --text-dim: #64748B;
+
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+
+            --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --transition: 0.22s var(--ease);
+
+            --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.55);
+            --shadow-glow: 0 0 40px rgba(59, 130, 246, 0.08);
+            --shadow-deep: 6px 6px 10px 2px rgba(0, 0, 0, 0.6);
+        }
+
+        /* ============================================================
+           RESET & BASE
+           ============================================================ */
+        *,
+        *::before,
+        *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-font-smoothing: antialiased;
         }
 
-        :root {
-            --bg-deep: #050806;
-            --bg-mid: #0C120E;
-            --bg-raised: #121A15;
-            --bg-hover: #18241C;
-            --text-primary: #EAF2EC;
-            --text-secondary: #7FA387;
-            --text-ghost: #3D5444;
-            --border: #19261E;
-            --border-lit: #2D4536;
-            --accent: #2ECC71;
-            --accent-dim: rgba(46, 204, 113, 0.08);
-            --danger: #FF4D4D;
-            --danger-dim: rgba(255, 77, 77, 0.1);
-            --danger-bright: #FFA3A3;
-            --warning: #FFA500;
-            --warning-dim: rgba(255, 165, 0, 0.1);
-            --info: #4DA6FF;
-            --ease-in-out: cubic-bezier(0.16, 1, 0.3, 1);
-            --z-drawer: 500;
-            --z-navbar: 400;
-            --z-toast: 999;
+        html {
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         body {
-            font-family: 'Geist', sans-serif;
-            background: var(--bg-deep);
-            color: var(--text-primary);
-            overflow-x: hidden;
+            background: var(--bg-base);
+            color: var(--text-main);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 1.5rem;
+            line-height: 1.5;
+            font-variant-numeric: tabular-nums;
         }
 
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background: repeating-linear-gradient(0deg,
-                    transparent,
-                    transparent 2px,
-                    rgba(0, 0, 0, 0.15) 2px,
-                    rgba(0, 0, 0, 0.15) 4px);
-            pointer-events: none;
-            z-index: 9999;
+        ::selection {
+            background: var(--primary-dim);
+            color: var(--text-main);
         }
 
+        /* Scrollbar */
         ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+            width: 5px;
+            height: 5px;
         }
         ::-webkit-scrollbar-track {
-            background: var(--bg-deep);
+            background: var(--bg-base);
         }
         ::-webkit-scrollbar-thumb {
-            background: var(--border-lit);
-            border-radius: 3px;
+            background: var(--border-accent);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
         }
 
-        /* ── AUTH MODULE ── */
-        #authContainer {
-            min-height: 100vh;
+        /* ============================================================
+           APP SHELL
+           ============================================================ */
+        .app-container {
+            width: 100%;
+            max-width: 1440px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        /* ============================================================
+           HEADER (unchanged)
+           ============================================================ */
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1.5rem;
+            background: var(--bg-glass);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-subtle);
+            box-shadow: var(--shadow-card), var(--shadow-glow);
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-shrink: 0;
+        }
+        .brand-icon {
+            width: 38px;
+            height: 38px;
+            background: var(--primary-dim);
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            border-radius: var(--radius-md);
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            color: var(--primary);
+            transition: var(--transition);
+        }
+        .brand-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+        .brand-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #fff 35%, var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            white-space: nowrap;
+        }
+
+        .search-wrapper {
+            flex: 1 1 320px;
+            max-width: 480px;
+            min-width: 160px;
             position: relative;
         }
-
-        .auth-card {
-            background: var(--bg-mid);
-            border: 1px solid var(--border);
-            width: 100%;
-            max-width: 440px;
-            padding: 40px 32px;
-            border-radius: 2px;
-        }
-
-        .auth-header {
-            text-align: center;
-            margin-bottom: 36px;
-        }
-
-        .auth-logo {
-            width: 48px;
-            height: 48px;
-            background: var(--accent-dim);
-            border: 1px solid rgba(46, 204, 113, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 16px;
-            border-radius: 2px;
-        }
-
-        .auth-logo svg {
-            width: 24px;
-            height: 24px;
-            stroke: var(--accent);
-        }
-
-        .auth-title {
-            font-family: 'Syne', sans-serif;
-            font-size: 26px;
-            font-weight: 800;
-            letter-spacing: 0.02em;
-        }
-
-        .auth-sub {
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 10px;
-            color: var(--text-secondary);
-            margin-top: 4px;
-            letter-spacing: 0.06em;
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        .input-label {
-            font-size: 10px;
-            font-family: 'IBM Plex Mono', monospace;
-            color: var(--text-secondary);
-            letter-spacing: 0.05em;
-            margin-bottom: 6px;
-            display: block;
-            text-transform: uppercase;
-        }
-
-        .auth-input {
-            width: 100%;
-            background: var(--bg-raised);
-            border: 1px solid var(--border);
-            padding: 12px 16px;
-            color: var(--text-primary);
-            font-size: 14px;
-            outline: none;
-            font-family: 'Geist', sans-serif;
-            border-radius: 2px;
-            transition: border-color 150ms;
-        }
-
-        .auth-input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 1px rgba(46, 204, 113, 0.2);
-        }
-
-        .auth-input.input-error {
-            border-color: var(--danger);
-            box-shadow: 0 0 0 1px rgba(255, 77, 77, 0.2);
-        }
-
-        .field-error-text {
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 10px;
-            color: var(--danger-bright);
-            margin-top: 5px;
-            display: none;
-            letter-spacing: 0.03em;
-        }
-
-        .field-error-text.visible {
-            display: block;
-        }
-
-        .password-wrapper {
-            position: relative;
-        }
-
-        .toggle-password-btn {
+        .search-wrapper .search-icon {
             position: absolute;
-            right: 14px;
+            left: 0.75rem;
             top: 50%;
             transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 10px;
-            cursor: pointer;
-            z-index: 2;
-            letter-spacing: 0.05em;
-            padding: 4px 8px;
-            border-radius: 2px;
-            transition: color 150ms;
+            color: var(--text-muted);
+            pointer-events: none;
         }
-
-        .toggle-password-btn:hover {
-            color: var(--accent);
-        }
-
-        .btn-auth {
-            width: 100%;
-            background: var(--accent);
-            border: none;
-            padding: 14px;
-            font-family: 'Syne', sans-serif;
-            font-weight: 700;
-            font-size: 14px;
-            color: var(--bg-deep);
-            cursor: pointer;
-            margin-top: 8px;
-            letter-spacing: 0.04em;
-            border-radius: 2px;
-            transition: background 150ms, opacity 150ms;
-            position: relative;
-        }
-
-        .btn-auth:hover:not(:disabled) {
-            background: #27ae60;
-        }
-
-        .btn-auth:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .btn-auth .spinner-inline {
-            display: none;
+        .search-wrapper .search-icon svg {
             width: 16px;
             height: 16px;
-            border: 2px solid transparent;
-            border-top-color: var(--bg-deep);
-            border-radius: 50%;
-            animation: spin 0.6s linear infinite;
+        }
+        .search-wrapper .kbd-hint {
             position: absolute;
-            right: 20px;
+            right: 0.75rem;
             top: 50%;
             transform: translateY(-50%);
-        }
-
-        .btn-auth.loading .spinner-inline {
-            display: block;
-        }
-        .btn-auth.loading .btn-text {
-            opacity: 0.5;
-        }
-
-        @keyframes spin {
-            to {
-                transform: translateY(-50%) rotate(360deg);
-            }
-        }
-
-        .auth-toggle {
-            text-align: center;
-            margin-top: 24px;
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-
-        .auth-toggle span {
-            color: var(--accent);
-            cursor: pointer;
+            color: var(--text-dim);
+            font-size: 0.65rem;
             font-weight: 600;
-            text-decoration: underline;
-            text-underline-offset: 3px;
-            transition: color 150ms;
-        }
-
-        .auth-toggle span:hover {
-            color: #27ae60;
-        }
-
-        .error-box {
-            background: var(--danger-dim);
-            border-left: 2px solid var(--danger);
-            padding: 10px 14px;
-            font-size: 12px;
-            font-family: 'IBM Plex Mono', monospace;
-            color: var(--danger-bright);
-            margin-bottom: 20px;
-            display: none;
+            background: var(--bg-elevated);
+            padding: 0.1rem 0.5rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-muted);
             letter-spacing: 0.03em;
+            pointer-events: none;
+        }
+        .search-wrapper input {
+            width: 100%;
+            padding: 0.5rem 2.4rem 0.5rem 2.4rem;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-muted);
+            border-radius: var(--radius-md);
+            color: var(--text-main);
+            font-size: 0.85rem;
+            outline: none;
+            transition: var(--transition);
+            font-variant-numeric: tabular-nums;
+        }
+        .search-wrapper input::placeholder {
+            color: var(--text-dim);
+        }
+        .search-wrapper input:focus {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px var(--primary-dim);
         }
 
-        .error-box.visible {
-            display: block;
-        }
-
-        .success-box {
-            background: var(--accent-dim);
-            border-left: 2px solid var(--accent);
-            padding: 10px 14px;
-            font-size: 12px;
-            font-family: 'IBM Plex Mono', monospace;
-            color: var(--accent);
-            margin-bottom: 20px;
-            display: none;
-            letter-spacing: 0.03em;
-        }
-        .success-box.visible {
-            display: block;
-        }
-
-        /* ── DASHBOARD ── */
-        #dashboardContainer {
-            display: none;
-            min-height: 100vh;
-        }
-
-        .app-shell {
-            display: grid;
-            grid-template-columns: 240px 1fr;
-            min-height: 100vh;
-        }
-
-        .mobile-header {
-            display: none;
-            background: var(--bg-mid);
-            border-bottom: 1px solid var(--border);
-            height: 56px;
-            padding: 0 16px;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: var(--z-navbar);
-        }
-
-        .hamburger {
-            background: transparent;
-            border: none;
-            width: 40px;
-            height: 40px;
+        .header-actions {
             display: flex;
             align-items: center;
-            justify-content: center;
-            cursor: pointer;
+            gap: 0.75rem;
+            flex-shrink: 0;
         }
-
-        .hamburger span {
-            display: block;
-            width: 20px;
-            height: 2px;
-            background: var(--text-primary);
-            position: relative;
-        }
-        .hamburger span::before,
-        .hamburger span::after {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 2px;
-            background: var(--text-primary);
-            left: 0;
-            transition: transform 150ms;
-        }
-        .hamburger span::before {
-            top: -6px;
-        }
-        .hamburger span::after {
-            bottom: -6px;
-        }
-        .hamburger.open span {
-            background: transparent;
-        }
-        .hamburger.open span::before {
-            transform: rotate(45deg);
-            top: 0;
-        }
-        .hamburger.open span::after {
-            transform: rotate(-45deg);
-            bottom: 0;
-        }
-
-        .sidebar {
-            background: var(--bg-mid);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            position: sticky;
-            top: 0;
-            height: 100vh;
-            z-index: var(--z-drawer);
-            transition: transform 300ms var(--ease-in-out);
-        }
-
-        .sidebar-brand {
-            padding: 24px 20px;
-            border-bottom: 1px solid var(--border);
+        .status-badge {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 0.5rem;
+            background: var(--success-dim);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            color: var(--success);
+            padding: 0.3rem 0.9rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
         }
-        .brand-shield {
-            width: 36px;
-            height: 36px;
-            background: var(--accent-dim);
-            border: 1px solid rgba(46, 204, 113, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 2px;
-        }
-        .brand-name {
-            font-family: 'Syne', sans-serif;
-            font-size: 18px;
-            font-weight: 800;
-        }
-        .status-strip {
-            margin: 16px 20px;
-            background: var(--accent-dim);
-            border: 1px solid rgba(46, 204, 113, 0.15);
-            padding: 10px 12px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-radius: 2px;
-        }
-        .pulse-dot {
-            width: 6px;
-            height: 6px;
+        .status-dot {
+            width: 7px;
+            height: 7px;
             border-radius: 50%;
-            background: var(--accent);
-            box-shadow: 0 0 8px var(--accent);
-            animation: pulse 1.5s infinite;
+            background: var(--success);
+            box-shadow: 0 0 12px var(--success-glow);
+            animation: pulse-dot 2s ease-in-out infinite;
         }
-        @keyframes pulse {
-            0% {
+        @keyframes pulse-dot {
+            0%,
+            100% {
                 opacity: 1;
+                transform: scale(1);
             }
             50% {
-                opacity: 0.4;
+                opacity: 0.6;
+                transform: scale(0.85);
             }
         }
-        .nav-section {
-            padding: 12px 20px 6px;
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 9px;
-            color: var(--text-ghost);
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-        }
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 20px;
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--text-secondary);
+
+        .btn-icon {
+            background: transparent;
+            border: 1px solid var(--border-muted);
+            border-radius: var(--radius-md);
+            padding: 0.4rem 0.65rem;
+            color: var(--text-muted);
             cursor: pointer;
-            border-left: 2px solid transparent;
-            transition: all 120ms;
-        }
-        .nav-item.active {
-            color: var(--accent);
-            background: var(--accent-dim);
-            border-left-color: var(--accent);
-        }
-        .sidebar-footer {
-            margin-top: auto;
-            border-top: 1px solid var(--border);
-            padding: 16px 20px;
-        }
-        .operator-chip {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .operator-avatar {
-            width: 32px;
-            height: 32px;
-            background: var(--bg-raised);
-            border: 1px solid var(--border);
+            transition: var(--transition);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 11px;
-            font-weight: 600;
-            font-family: 'IBM Plex Mono', monospace;
-            border-radius: 2px;
         }
-        .clearance-badge {
-            margin-left: auto;
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 9px;
-            color: var(--accent);
-            border: 1px solid rgba(46, 204, 113, 0.3);
-            padding: 2px 4px;
-            background: var(--accent-dim);
-            border-radius: 2px;
-            letter-spacing: 0.04em;
+        .btn-icon:hover {
+            background: var(--bg-hover);
+            border-color: var(--border-accent);
+            color: var(--text-main);
         }
-        .logout-btn {
-            margin-top: 14px;
-            width: 100%;
-            background: var(--danger-dim);
-            border: 1px solid rgba(255, 77, 77, 0.2);
-            padding: 8px;
-            font-size: 11px;
-            font-family: 'IBM Plex Mono', monospace;
-            text-align: center;
-            cursor: pointer;
-            color: var(--danger-bright);
-            letter-spacing: 0.04em;
-            border-radius: 2px;
-            transition: background 150ms;
-        }
-        .logout-btn:hover {
-            background: rgba(255, 77, 77, 0.18);
+        .btn-icon svg {
+            width: 18px;
+            height: 18px;
         }
 
-        .main-content {
-            padding: 32px;
-            max-width: 1600px;
-            width: 100%;
-            margin: 0 auto;
+        /* ============================================================
+           NAVIGATION — PILL TABS (unchanged)
+           ============================================================ */
+        .nav-wrapper {
+            overflow-x: auto;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+            padding: 0.1rem 0;
         }
-        .kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            margin-bottom: 24px;
+        .nav-wrapper::-webkit-scrollbar {
+            display: none;
         }
-        .kpi-card {
-            background: var(--bg-mid);
-            border: 1px solid var(--border);
-            padding: 20px;
-            border-radius: 2px;
-        }
-        .kpi-label {
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 9px;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            margin-bottom: 6px;
-            letter-spacing: 0.05em;
-        }
-        .kpi-value {
-            font-family: 'Syne', sans-serif;
-            font-size: 30px;
-            font-weight: 800;
-        }
-        .kpi-delta {
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 10px;
-            margin-top: 4px;
-            color: var(--accent);
-        }
-        .kpi-delta.warn {
-            color: var(--warning);
-        }
-        .layout-matrix {
-            display: grid;
-            grid-template-columns: 1fr 380px;
-            gap: 16px;
-            margin-bottom: 16px;
-        }
-        .panel {
-            background: var(--bg-mid);
-            border: 1px solid var(--border);
+
+        .nav-tabs {
             display: flex;
-            flex-direction: column;
-            border-radius: 2px;
+            gap: 0.3rem;
+            background: var(--bg-surface);
+            padding: 0.4rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-muted);
+            min-width: max-content;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
         }
-        .panel-head {
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--border);
+        .nav-tab {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.45rem 1rem;
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+            font-variant-numeric: tabular-nums;
+        }
+        .nav-tab:hover {
+            color: var(--text-main);
+            background: var(--bg-hover);
+        }
+        .nav-tab.active {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 4px 16px var(--primary-glow);
+        }
+        .nav-tab svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        /* ============================================================
+           MAIN VIEWPORT
+           ============================================================ */
+        .viewport {
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-subtle);
+            padding: 1.75rem;
+            min-height: 580px;
+            box-shadow: var(--shadow-card), var(--shadow-glow);
+            position: relative;
+        }
+
+        .tab-pane {
+            display: none;
+            animation: pane-fade 0.25s var(--ease);
+        }
+        .tab-pane.active {
+            display: block;
+        }
+
+        @keyframes pane-fade {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ============================================================
+           TYPOGRAPHY — OSWALD accent + top border line
+           ============================================================ */
+        .title-1,
+        .title-2 {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+        .title-1 {
+            font-size: 2.8rem;
+            line-height: 1.1;
+        }
+        .title-2 {
+            font-size: 2.2rem;
+            line-height: 1.2;
+        }
+
+        /* Accent line (like .place-box:before) */
+        .accent-line {
+            position: relative;
+            padding-top: 0.75rem;
+        }
+        .accent-line::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 38px;
+            height: 4px;
+            border-radius: 99px;
+            background: var(--primary);
+        }
+
+        /* ============================================================
+           METRIC CARDS — enhanced with Oswald & shadow
+           ============================================================ */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .metric-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-muted);
+            border-radius: var(--radius-md);
+            padding: 1.1rem 1.25rem;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-deep);
+        }
+        .metric-card:hover {
+            border-color: var(--border-accent);
+            background: var(--bg-elevated);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+        }
+        /* Top accent line like .place-box */
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 38px;
+            height: 4px;
+            border-radius: 0 99px 99px 0;
+            background: var(--primary);
+            opacity: 0.8;
+        }
+        .metric-card .trend {
+            font-size: 0.65rem;
+            font-weight: 600;
+            padding: 0.1rem 0.5rem;
+            border-radius: 9999px;
+            background: var(--success-dim);
+            color: var(--success);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
+        .metric-card .trend.down {
+            background: var(--danger-dim);
+            color: var(--danger);
+        }
+        .metric-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            font-family: 'Syne', sans-serif;
-            font-size: 13px;
-            font-weight: 800;
-            letter-spacing: 0.02em;
-        }
-        .tab-group {
-            display: flex;
-            gap: 4px;
-        }
-        .chart-tab {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 9px;
-            padding: 4px 8px;
-            cursor: pointer;
-            border-radius: 2px;
-            transition: all 120ms;
-        }
-        .chart-tab.active {
-            background: var(--accent-dim);
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-        .chart-frame {
-            padding: 20px;
-            position: relative;
-            width: 100%;
-            height: 260px;
-        }
-        .geo-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1px;
-            background: var(--border);
-        }
-        .geo-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: var(--bg-mid);
-            padding: 14px 20px;
-            font-size: 13px;
-        }
-        .geo-bar-bg {
-            flex: 1;
-            height: 3px;
-            background: var(--bg-raised);
-            margin: 0 12px;
-            position: relative;
-            border-radius: 2px;
-        }
-        .geo-bar-fill {
-            height: 100%;
-            background: var(--accent);
-            border-radius: 2px;
-        }
-        .geo-bar-fill.crit {
-            background: var(--danger);
-        }
-        .geo-bar-fill.high {
-            background: var(--warning);
-        }
-        .events-container {
-            height: 320px;
-            overflow-y: auto;
-        }
-        .event-row {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 14px 20px;
-            border-bottom: 1px solid var(--border);
-            transition: background 100ms;
-        }
-        .event-row:hover {
-            background: var(--bg-raised);
-        }
-        .indicator-node {
-            width: 8px;
-            height: 8px;
-            flex-shrink: 0;
-            border-radius: 1px;
-        }
-        .btn-action {
-            background: var(--accent);
-            color: var(--bg-deep);
-            border: none;
-            padding: 0 16px;
-            height: 36px;
-            font-family: 'Syne', sans-serif;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            letter-spacing: 0.03em;
-            border-radius: 2px;
-        }
-        .btn-secondary {
-            background: var(--bg-raised);
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 10px;
-            padding: 0 12px;
-            height: 32px;
-            cursor: pointer;
-            border-radius: 2px;
-            transition: all 120ms;
-        }
-        .btn-secondary:hover {
-            border-color: var(--border-lit);
-            color: var(--text-primary);
-        }
-        .ai-shell {
-            display: flex;
-            flex-direction: column;
-            height: 320px;
-        }
-        .ai-logs {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .log-block {
-            max-width: 85%;
-            padding: 10px 14px;
-            font-size: 12px;
-            line-height: 1.5;
-            border-radius: 4px;
-        }
-        .log-block.system {
-            background: var(--bg-raised);
-            border: 1px solid var(--border);
-            border-top-right-radius: 8px;
-            border-bottom-right-radius: 8px;
-        }
-        .log-block.operator {
-            background: var(--accent-dim);
-            align-self: flex-end;
-            border-top-left-radius: 8px;
-            border-bottom-left-radius: 8px;
-        }
-        .log-tag {
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 9px;
-            color: var(--accent);
-            margin-bottom: 4px;
-            display: block;
-            letter-spacing: 0.04em;
-        }
-        .console-input-area {
-            padding: 12px 16px;
-            border-top: 1px solid var(--border);
-            display: flex;
-            gap: 8px;
-            background: var(--bg-deep);
-        }
-        .console-input {
-            flex: 1;
-            background: var(--bg-raised);
-            border: 1px solid var(--border);
-            padding: 0 14px;
-            color: var(--text-primary);
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 12px;
-            outline: none;
-            border-radius: 2px;
-        }
-        .sev-badge {
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 9px;
+            color: var(--text-muted);
+            font-size: 0.7rem;
             font-weight: 600;
-            padding: 2px 6px;
             text-transform: uppercase;
-            border: 1px solid transparent;
             letter-spacing: 0.04em;
-            border-radius: 2px;
         }
-        .sev-badge.crit {
-            background: var(--danger-dim);
-            color: var(--danger-bright);
-            border-color: rgba(255, 77, 77, 0.3);
+        .metric-value {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 600;
+            font-size: 2.4rem;
+            letter-spacing: 0.02em;
+            color: var(--text-main);
+            margin-top: 0.2rem;
+            font-variant-numeric: tabular-nums;
         }
-        .sev-badge.high {
-            background: var(--warning-dim);
-            color: var(--warning);
-            border-color: rgba(255, 165, 0, 0.3);
-        }
-        .sev-badge.med {
-            background: var(--bg-raised);
-            color: var(--text-secondary);
-            border-color: var(--border);
-        }
-        .toast-system {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            background: var(--bg-raised);
-            border: 1px solid var(--border-lit);
-            padding: 12px 20px;
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 11px;
-            transform: translateY(100px);
-            opacity: 0;
-            transition: all 300ms var(--ease-in-out);
-            pointer-events: none;
-            z-index: var(--z-toast);
-            letter-spacing: 0.03em;
-            border-radius: 2px;
-        }
-        .toast-system.active {
-            transform: translateY(0);
-            opacity: 1;
-        }
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(4px);
-            z-index: 450;
-        }
-        .sidebar-overlay.active {
-            display: block;
+        .metric-sub {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            margin-top: 0.15rem;
         }
 
-        /* ── RESPONSIVE ── */
-        @media (max-width: 1200px) {
-            .layout-matrix {
-                grid-template-columns: 1fr;
+        /* ============================================================
+           CARDS — enhanced with deep shadow and top accent
+           ============================================================ */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-muted);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            margin-bottom: 1.25rem;
+            transition: var(--transition);
+            box-shadow: var(--shadow-deep);
+            position: relative;
+        }
+        .card:hover {
+            border-color: var(--border-subtle);
+        }
+        /* subtle top accent line for cards */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 38px;
+            height: 4px;
+            border-radius: 0 99px 99px 0;
+            background: var(--primary);
+            opacity: 0.5;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .card-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* ============================================================
+           BUTTONS (unchanged)
+           ============================================================ */
+        .btn {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 0.55rem 1.1rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-variant-numeric: tabular-nums;
+            user-select: none;
+            white-space: nowrap;
+        }
+        .btn:hover:not(:disabled) {
+            filter: brightness(1.15);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px var(--primary-glow);
+        }
+        .btn:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+        .btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        .btn-danger {
+            background: var(--danger);
+        }
+        .btn-danger:hover:not(:disabled) {
+            box-shadow: 0 4px 16px var(--danger-glow);
+        }
+        .btn-success {
+            background: var(--success);
+        }
+        .btn-success:hover:not(:disabled) {
+            box-shadow: 0 4px 16px var(--success-glow);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border-muted);
+            color: var(--text-main);
+        }
+        .btn-outline:hover:not(:disabled) {
+            background: var(--bg-hover);
+            border-color: var(--border-accent);
+            box-shadow: none;
+            transform: translateY(-1px);
+        }
+        .btn-sm {
+            padding: 0.3rem 0.7rem;
+            font-size: 0.7rem;
+        }
+
+        /* ============================================================
+           INPUTS (unchanged)
+           ============================================================ */
+        .input-field {
+            background: var(--bg-base);
+            border: 1px solid var(--border-muted);
+            color: var(--text-main);
+            padding: 0.55rem 0.9rem;
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+            outline: none;
+            transition: var(--transition);
+            width: 100%;
+            font-variant-numeric: tabular-nums;
+        }
+        .input-field::placeholder {
+            color: var(--text-dim);
+        }
+        .input-field:focus {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px var(--primary-dim);
+        }
+
+        /* ============================================================
+           SCAN SELECTOR (unchanged)
+           ============================================================ */
+        .scan-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+        }
+        .scan-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-muted);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+            box-shadow: var(--shadow-deep);
+        }
+        .scan-card:hover {
+            border-color: var(--border-accent);
+            background: var(--bg-elevated);
+        }
+        .scan-card.selected {
+            border-color: var(--primary);
+            background: var(--primary-dim);
+            box-shadow: 0 0 0 1px var(--primary), var(--shadow-deep);
+        }
+        .scan-card-title {
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        .scan-card-desc {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        /* ============================================================
+           DRAG & DROP (unchanged)
+           ============================================================ */
+        .drag-drop-zone {
+            border: 2px dashed var(--border-muted);
+            border-radius: var(--radius-md);
+            padding: 2.2rem 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--bg-base);
+            position: relative;
+            box-shadow: var(--shadow-deep);
+        }
+        .drag-drop-zone:hover {
+            border-color: var(--primary);
+            background: var(--primary-dim);
+        }
+        .drag-drop-zone.dragover {
+            border-color: var(--primary);
+            background: var(--primary-dim);
+            box-shadow: 0 0 0 3px var(--primary-dim);
+        }
+
+        /* ============================================================
+           PROGRESS BAR (unchanged)
+           ============================================================ */
+        .progress-bar-container {
+            height: 6px;
+            background: var(--bg-base);
+            border-radius: 9999px;
+            overflow: hidden;
+            margin: 1rem 0;
+            border: 1px solid var(--border-muted);
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), #818CF8);
+            width: 0%;
+            transition: width 0.18s ease;
+            border-radius: 9999px;
+        }
+
+        .scan-pulse {
+            position: relative;
+        }
+        .scan-pulse::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: var(--radius-md);
+            border: 2px solid var(--primary);
+            opacity: 0;
+            pointer-events: none;
+            animation: scan-pulse 1.6s ease-out infinite;
+        }
+        @keyframes scan-pulse {
+            0% {
+                opacity: 0.8;
+                transform: scale(0.98);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(1.04);
             }
         }
-        @media (max-width: 992px) {
-            .app-shell {
-                grid-template-columns: 1fr;
+
+        /* ============================================================
+           DATA LIST / ITEMS (unchanged)
+           ============================================================ */
+        .data-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .data-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.65rem 1rem;
+            background: var(--bg-base);
+            border: 1px solid var(--border-muted);
+            border-radius: var(--radius-md);
+            font-size: 0.82rem;
+            transition: var(--transition);
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        .data-item:hover {
+            border-color: var(--border-subtle);
+            background: var(--bg-elevated);
+        }
+        .data-item .item-left {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex: 1;
+            min-width: 120px;
+        }
+        .data-item .item-actions {
+            display: flex;
+            gap: 0.3rem;
+            flex-shrink: 0;
+        }
+
+        /* ============================================================
+           BADGES (unchanged)
+           ============================================================ */
+        .badge {
+            font-size: 0.65rem;
+            padding: 0.1rem 0.55rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
+        .badge-danger {
+            background: var(--danger-dim);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+        .badge-success {
+            background: var(--success-dim);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        .badge-warning {
+            background: var(--warning-dim);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+        .badge-info {
+            background: var(--info-dim);
+            color: var(--info);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+        .badge-muted {
+            background: var(--bg-elevated);
+            color: var(--text-muted);
+            border: 1px solid var(--border-muted);
+        }
+
+        /* ============================================================
+           TOGGLES (unchanged)
+           ============================================================ */
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.7rem 0;
+            border-bottom: 1px solid var(--border-muted);
+            gap: 1rem;
+        }
+        .toggle-row:last-child {
+            border-bottom: none;
+        }
+        .toggle-label {
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
+            flex: 1;
+        }
+        .toggle-title {
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        .toggle-sub {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .switch {
+            position: relative;
+            width: 42px;
+            height: 24px;
+            flex-shrink: 0;
+            display: inline-block;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background: var(--bg-hover);
+            border-radius: 9999px;
+            transition: var(--transition);
+            border: 1px solid var(--border-muted);
+        }
+        .slider::before {
+            position: absolute;
+            content: '';
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background: var(--text-muted);
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+        input:checked+.slider {
+            background: var(--success);
+            border-color: var(--success);
+        }
+        input:checked+.slider::before {
+            transform: translateX(18px);
+            background: #fff;
+        }
+
+        /* ============================================================
+           CHAT / AI CONSOLE (unchanged)
+           ============================================================ */
+        .chat-container {
+            background: var(--bg-base);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            height: 300px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-muted);
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            box-shadow: var(--shadow-deep);
+        }
+        .chat-bubble {
+            padding: 0.6rem 1rem;
+            border-radius: var(--radius-md);
+            max-width: 78%;
+            font-size: 0.85rem;
+            line-height: 1.45;
+            word-break: break-word;
+        }
+        .chat-bubble.bot {
+            background: var(--bg-card);
+            align-self: flex-start;
+            border: 1px solid var(--border-muted);
+        }
+        .chat-bubble.user {
+            background: var(--primary);
+            align-self: flex-end;
+            color: #fff;
+        }
+
+        .quick-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-bottom: 0.75rem;
+        }
+        .quick-chip {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-muted);
+            border-radius: 9999px;
+            padding: 0.2rem 0.9rem;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+            font-variant-numeric: tabular-nums;
+        }
+        .quick-chip:hover {
+            background: var(--bg-hover);
+            color: var(--text-main);
+            border-color: var(--border-accent);
+        }
+
+        /* ============================================================
+           EMPTY STATES (unchanged)
+           ============================================================ */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2.5rem 1rem;
+            color: var(--text-dim);
+            text-align: center;
+            gap: 0.5rem;
+        }
+        .empty-state svg {
+            width: 48px;
+            height: 48px;
+            color: var(--text-dim);
+            opacity: 0.5;
+        }
+        .empty-state .empty-title {
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+        .empty-state .empty-desc {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+
+        /* ============================================================
+           TOAST SYSTEM (unchanged)
+           ============================================================ */
+        .toast-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            z-index: 9999;
+            max-width: 380px;
+            width: 100%;
+            pointer-events: none;
+        }
+        .toast {
+            background: var(--bg-elevated);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 0.8rem 1.2rem;
+            box-shadow: var(--shadow-card);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            animation: toast-in 0.3s var(--ease);
+            pointer-events: auto;
+            color: var(--text-main);
+            font-size: 0.85rem;
+        }
+        .toast .toast-icon {
+            flex-shrink: 0;
+        }
+        .toast .toast-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+        .toast .toast-close {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            padding: 0.1rem;
+            margin-left: auto;
+            transition: var(--transition);
+        }
+        .toast .toast-close:hover {
+            color: var(--text-main);
+        }
+        .toast.toast-success .toast-icon {
+            color: var(--success);
+        }
+        .toast.toast-danger .toast-icon {
+            color: var(--danger);
+        }
+        .toast.toast-warning .toast-icon {
+            color: var(--warning);
+        }
+        .toast.toast-info .toast-icon {
+            color: var(--info);
+        }
+
+        @keyframes toast-in {
+            from {
+                opacity: 0;
+                transform: translateX(30px) scale(0.95);
             }
-            .mobile-header {
-                display: flex;
-            }
-            .sidebar {
-                position: fixed;
-                left: 0;
-                top: 0;
-                bottom: 0;
-                width: 260px;
-                transform: translateX(-100%);
-            }
-            .sidebar.open {
-                transform: translateX(0);
-            }
-            .kpi-grid {
-                grid-template-columns: repeat(2, 1fr);
+            to {
+                opacity: 1;
+                transform: translateX(0) scale(1);
             }
         }
-        @media (max-width: 576px) {
-            .kpi-grid {
+        .toast.removing {
+            animation: toast-out 0.25s var(--ease) forwards;
+        }
+        @keyframes toast-out {
+            to {
+                opacity: 0;
+                transform: translateX(30px) scale(0.95);
+            }
+        }
+
+        /* ============================================================
+           RESPONSIVE (unchanged)
+           ============================================================ */
+        @media (max-width: 1024px) {
+            .app-header {
+                padding: 0.6rem 1rem;
+            }
+            .search-wrapper {
+                flex: 1 1 200px;
+                min-width: 120px;
+            }
+            .viewport {
+                padding: 1.25rem;
+            }
+            .metric-value {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 0.75rem;
+            }
+            .app-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.6rem;
+            }
+            .brand {
+                justify-content: center;
+            }
+            .search-wrapper {
+                max-width: 100%;
+                flex: 1 1 auto;
+            }
+            .header-actions {
+                justify-content: center;
+            }
+            .nav-tab {
+                padding: 0.35rem 0.7rem;
+                font-size: 0.7rem;
+            }
+            .nav-tab svg {
+                width: 14px;
+                height: 14px;
+            }
+            .viewport {
+                padding: 1rem;
+                min-height: 420px;
+            }
+            .dashboard-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .metric-value {
+                font-size: 1.8rem;
+            }
+            .scan-selector {
                 grid-template-columns: 1fr;
             }
-            .main-content {
-                padding: 16px;
+            .chat-bubble {
+                max-width: 92%;
             }
-            .auth-card {
-                padding: 28px 20px;
+            .toast-container {
+                bottom: 1rem;
+                right: 1rem;
+                left: 1rem;
+                max-width: none;
             }
+        }
+
+        @media (max-width: 480px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            .data-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.4rem;
+            }
+            .data-item .item-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            .header-actions .status-badge span:not(.status-dot) {
+                display: none;
+            }
+            .metric-value {
+                font-size: 1.6rem;
+            }
+        }
+
+        /* ============================================================
+           ACCESSIBILITY: FOCUS-VISIBLE (unchanged)
+           ============================================================ */
+        :focus-visible {
+            outline: 2px solid var(--border-focus);
+            outline-offset: 2px;
+        }
+
+        /* ============================================================
+           UTILITY (unchanged)
+           ============================================================ */
+        .flex {
+            display: flex;
+        }
+        .flex-center {
+            align-items: center;
+            justify-content: center;
+        }
+        .gap-1 {
+            gap: 0.5rem;
+        }
+        .gap-2 {
+            gap: 1rem;
+        }
+        .mt-1 {
+            margin-top: 0.5rem;
+        }
+        .mt-2 {
+            margin-top: 1rem;
+        }
+        .mb-1 {
+            margin-bottom: 0.5rem;
+        }
+        .mb-2 {
+            margin-bottom: 1rem;
+        }
+        .w-full {
+            width: 100%;
         }
     </style>
 </head>
 <body>
 
-    <!-- Toast Notification System -->
-    <div id="systemToast" class="toast-system"></div>
-    <!-- Mobile Sidebar Overlay -->
-    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+    <!-- ============================================================
+    TOAST CONTAINER
+    ============================================================ -->
+    <div class="toast-container" id="toastContainer" role="status" aria-live="polite"></div>
 
-    <!-- ═══════════════════════════════════════════ -->
-    <!-- AUTHENTICATION CONTAINER                  -->
-    <!-- ═══════════════════════════════════════════ -->
-    <div id="authContainer">
-        <div class="auth-card">
-            <div class="auth-header">
-                <div class="auth-logo">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                    </svg>
+    <!-- ============================================================
+    APP
+    ============================================================ -->
+    <div class="app-container">
+
+        <!-- ============================================================
+        HEADER
+        ============================================================ -->
+        <header class="app-header" role="banner">
+            <div class="brand">
+                <div class="brand-icon" aria-hidden="true">
+                    <i data-lucide="shield-check"></i>
                 </div>
-                <div class="auth-title">GUARD AI</div>
-                <div class="auth-sub">SECURE ENTRY CONSOLE // v4.5</div>
+                <div class="brand-title">Guardian AI Enterprise</div>
             </div>
 
-            <!-- Global error box (server errors, credential mismatches) -->
-            <div id="authErrorBox" class="error-box"></div>
-            <!-- Success box (registration success, etc.) -->
-            <div id="authSuccessBox" class="success-box"></div>
-
-            <form id="authPipelineForm" novalidate>
-                <div id="authFormFields"></div>
-                <button type="submit" class="btn-auth" id="authActionSubmit">
-                    <span class="btn-text">EXECUTE SIGN_IN</span>
-                    <span class="spinner-inline"></span>
-                </button>
-            </form>
-            <div class="auth-toggle" id="authModeToggler">
-                No active token? <span id="actionToggleTriggerLink">Register Profile</span>
+            <div class="search-wrapper" role="search">
+                <span class="search-icon" aria-hidden="true"><i data-lucide="search"></i></span>
+                <input
+                type="text"
+                id="globalSearch"
+                placeholder="Search logs, rules, threats…"
+                aria-label="Global search"
+                />
+                <span class="kbd-hint" aria-hidden="true">⌘K</span>
             </div>
+
+            <div class="header-actions">
+                <div class="status-badge">
+                    <span class="status-dot" aria-hidden="true"></span>
+                    <span>Active Shield</span>
+                </div>
+                <button
+                class="btn-icon"
+                onclick="ToastSystem.success('Cloud database synced successfully')"
+                aria-label="Sync cloud database"
+                >
+                <i data-lucide="refresh-cw"></i>
+            </button>
         </div>
-    </div>
+    </header>
 
-    <!-- ═══════════════════════════════════════════ -->
-    <!-- DASHBOARD CONTAINER                       -->
-    <!-- ═══════════════════════════════════════════ -->
-    <div id="dashboardContainer">
-        <div class="mobile-header">
-            <div style="display:flex;align-items:center;gap:8px;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" width="20" height="20">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                </svg>
-                <span style="font-family:'Syne';font-weight:800;">GuardAI</span>
-            </div>
-            <button class="hamburger" id="mobileDrawerTrigger"><span></span></button>
+    <!-- ============================================================
+    NAVIGATION
+    ============================================================ -->
+    <nav class="nav-wrapper" role="navigation" aria-label="Main navigation">
+        <div class="nav-tabs" id="navTabs" role="tablist">
+            <button class="nav-tab active" data-tab="dashboard" role="tab" aria-selected="true" aria-controls="dashboard">
+                <i data-lucide="layout-dashboard"></i> Overview
+            </button>
+            <button class="nav-tab" data-tab="scanner" role="tab" aria-selected="false" aria-controls="scanner">
+                <i data-lucide="scan"></i> Scanner
+            </button>
+            <button class="nav-tab" data-tab="realtime" role="tab" aria-selected="false" aria-controls="realtime">
+                <i data-lucide="zap"></i> Shields
+            </button>
+            <button class="nav-tab" data-tab="quarantine" role="tab" aria-selected="false" aria-controls="quarantine">
+                <i data-lucide="lock"></i> Quarantine
+            </button>
+            <button class="nav-tab" data-tab="firewall" role="tab" aria-selected="false" aria-controls="firewall">
+                <i data-lucide="flame"></i> Firewall
+            </button>
+            <button class="nav-tab" data-tab="web" role="tab" aria-selected="false" aria-controls="web">
+                <i data-lucide="globe"></i> Web
+            </button>
+            <button class="nav-tab" data-tab="email" role="tab" aria-selected="false" aria-controls="email">
+                <i data-lucide="mail"></i> Email
+            </button>
+            <button class="nav-tab" data-tab="usb" role="tab" aria-selected="false" aria-controls="usb">
+                <i data-lucide="hard-drive"></i> USB
+            </button>
+            <button class="nav-tab" data-tab="network" role="tab" aria-selected="false" aria-controls="network">
+                <i data-lucide="wifi"></i> Network
+            </button>
+            <button class="nav-tab" data-tab="privacy" role="tab" aria-selected="false" aria-controls="privacy">
+                <i data-lucide="eye-off"></i> Privacy
+            </button>
+            <button class="nav-tab" data-tab="cleaner" role="tab" aria-selected="false" aria-controls="cleaner">
+                <i data-lucide="trash-2"></i> Purge
+            </button>
+            <button class="nav-tab" data-tab="assistant" role="tab" aria-selected="false" aria-controls="assistant">
+                <i data-lucide="bot"></i> AI Console
+            </button>
         </div>
-        <div class="app-shell">
-            <aside class="sidebar" id="appNavigationDrawer">
-                <div class="sidebar-brand">
-                    <div class="brand-shield">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" width="20">
-                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                        </svg>
+    </nav>
+
+    <!-- ============================================================
+    MAIN VIEWPORT
+    ============================================================ -->
+    <main class="viewport" role="main">
+
+        <!-- ============================================================
+        DASHBOARD
+        ============================================================ -->
+        <section id="dashboard" class="tab-pane active" role="tabpanel" aria-labelledby="tab-dashboard">
+            <h2 class="section-title title-2 accent-line"><i data-lucide="activity"></i> Security Posture Summary</h2>
+
+            <div class="dashboard-grid">
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span>Protection Index</span>
+                        <span class="trend" id="trendScore">▲ 2%</span>
                     </div>
-                    <div>
-                        <div class="brand-name">GuardAI</div>
-                        <div style="font-size:9px;color:var(--accent);font-family:'IBM Plex Mono',monospace;">CORE NODE // v4.5</div>
-                    </div>
+                    <div class="metric-value" id="valScore">98/100</div>
+                    <div class="metric-sub">Last 24h · Stable</div>
                 </div>
-                <div class="status-strip">
-                    <div class="pulse-dot"></div>
-                    <div>
-                        <div style="font-size:11px;font-weight:600;">TELEMETRY ONLINE</div>
-                        <div style="font-size:9px;color:var(--text-secondary);">8 AGENTS CONVERGED</div>
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span>Files Scanned</span>
+                        <span class="trend" id="trendScanned">▲ 12%</span>
                     </div>
+                    <div class="metric-value" id="valScanned">1,420</div>
+                    <div class="metric-sub">vs 1,268 yesterday</div>
                 </div>
-                <div class="nav-section">Core Command</div>
-                <div class="nav-item active">📡 Threat Matrix</div>
-                <div class="nav-item">🛡️ Perimeter Rules</div>
-                <div class="nav-item">📊 Identity Ledger</div>
-                <div class="sidebar-footer">
-                    <div class="operator-chip">
-                        <div class="operator-avatar" id="profileSessionAvatar">--</div>
-                        <div>
-                            <div id="profileSessionName" style="font-size:12px;font-weight:600;">Loading...</div>
-                            <div id="profileSessionRole" style="font-size:9px;color:var(--text-secondary);">SEC_OPS</div>
-                        </div>
-                        <span class="clearance-badge" id="profileSessionClearance">LVL-1</span>
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span>Neutralized Threats</span>
+                        <span class="trend down" id="trendThreats">▼ 0%</span>
                     </div>
-                    <button class="logout-btn" id="sessionDestroyTrigger">
-                        ⏻ TERMINATE SESSION
+                    <div class="metric-value" id="valThreats" style="color:var(--danger);">0</div>
+                    <div class="metric-sub">All cleared</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span>Last Scan</span>
+                        <span class="trend" id="trendLast">—</span>
+                    </div>
+                    <div class="metric-value" id="valLastScan" style="font-size:1.6rem; margin-top:0.3rem;">Never</div>
+                    <div class="metric-sub">Click Scanner to begin</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i data-lucide="clipboard-list"></i> Activity Log</div>
+                    <button class="btn btn-outline btn-sm" onclick="ActivityLogModule.clear()">Clear</button>
+                </div>
+                <div class="data-list" id="activityLogList" role="log" aria-live="polite"></div>
+            </div>
+        </section>
+
+        <!-- ============================================================
+        SCANNER
+        ============================================================ -->
+        <section id="scanner" class="tab-pane" role="tabpanel" aria-labelledby="tab-scanner">
+            <h2 class="section-title title-2 accent-line"><i data-lucide="scan"></i> Endpoint Malware Analysis</h2>
+
+            <div class="scan-selector" role="radiogroup" aria-label="Scan type">
+                <div class="scan-card selected" data-type="quick" role="radio" aria-checked="true" tabindex="0">
+                    <div class="scan-card-title">⚡ Quick Scan</div>
+                    <div class="scan-card-desc">Running processes &amp; startup paths</div>
+                </div>
+                <div class="scan-card" data-type="full" role="radio" aria-checked="false" tabindex="0">
+                    <div class="scan-card-title">🛡️ Full System</div>
+                    <div class="scan-card-desc">Byte-level signature check on all disks</div>
+                </div>
+                <div class="scan-card" data-type="custom" role="radio" aria-checked="false" tabindex="0">
+                    <div class="scan-card-title">📁 Custom Scope</div>
+                    <div class="scan-card-desc">Target specific paths or volumes</div>
+                </div>
+            </div>
+
+            <div id="customPathInput" style="display:none; margin-bottom:1rem;">
+                <input type="text" id="customPath" class="input-field" placeholder="e.g. C:\Users\Admin\Downloads" aria-label="Custom scan path" />
+            </div>
+
+            <div class="drag-drop-zone" id="dropZone" role="button" tabindex="0" aria-label="Drop files here to scan">
+                <i data-lucide="upload-cloud" style="width:32px; height:32px; color:var(--text-muted); margin-bottom:0.4rem; display:block; margin-left:auto; margin-right:auto;"></i>
+                <p style="color:var(--text-muted); font-size:0.8rem;">Drop executables / APKs here for instant inspection</p>
+                <input type="file" id="fileInput" style="display:none;" multiple aria-label="File picker" />
+            </div>
+
+            <div style="display:flex; gap:0.5rem; margin-top:1rem; flex-wrap:wrap;">
+                <button class="btn" id="btnStartScan"><i data-lucide="play"></i> Start Scan</button>
+                <button class="btn btn-outline" id="btnPauseScan" disabled><i data-lucide="pause"></i> Pause</button>
+            </div>
+
+            <div class="progress-bar-container" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="progressBar">
+                <div class="progress-bar-fill" id="scanProgressFill" style="width:0%;"></div>
+            </div>
+
+            <div id="scanResultsList" class="data-list" role="list"></div>
+        </section>
+
+        <!-- ============================================================
+        REAL-TIME SHIELDS
+        ============================================================ -->
+        <section id="realtime" class="tab-pane" role="tabpanel" aria-labelledby="tab-realtime">
+            <h2 class="section-title title-2 accent-line"><i data-lucide="zap"></i> Proactive Protection Layers</h2>
+            <div class="card">
+                <div class="toggle-row">
+                    <div class="toggle-label">
+                        <div class="toggle-title">Behavioral File System Monitor</div>
+                        <div class="toggle-sub">Detects ransomware encryption patterns in real-time</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" checked id="toggleFS" aria-label="File System Monitor" />
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-row">
+                    <div class="toggle-label">
+                        <div class="toggle-title">Process Memory Barrier</div>
+                        <div class="toggle-sub">Prevents unauthorized memory injection</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" checked id="toggleMem" aria-label="Memory Barrier" />
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-row">
+                    <div class="toggle-label">
+                        <div class="toggle-title">Network Intrusion Sentry</div>
+                        <div class="toggle-sub">Filters inbound port probing &amp; payload delivery</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" checked id="toggleNet" aria-label="Network Sentry" />
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+            <button class="btn btn-danger" onclick="RealtimeShieldModule.triggerSimulation()">
+                <i data-lucide="zap"></i> Simulate Threat
+            </button>
+        </section>
+
+        <!-- ============================================================
+        QUARANTINE
+        ============================================================ -->
+        <section id="quarantine" class="tab-pane" role="tabpanel" aria-labelledby="tab-quarantine">
+            <h2 class="section-title title-2 accent-line"><i data-lucide="lock"></i> Isolated Threat Vault</h2>
+            <p class="text-muted text-sm mb-2">Malicious payloads restricted from execution.</p>
+            <div id="quarantineList" class="data-list" role="list" style="margin-bottom:1rem;"></div>
+            <button class="btn btn-danger" onclick="QuarantineModule.purgeAll()">
+                <i data-lucide="trash"></i> Purge All
+            </button>
+        </section>
+
+        <!-- ============================================================
+        FIREWALL
+        ============================================================ -->
+        <section id="firewall" class="tab-pane" role="tabpanel" aria-labelledby="tab-firewall">
+            <h2 class="section-title title-2 accent-line"><i data-lucide="shield-alert"></i> Application Firewall Controller</h2>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i data-lucide="list"></i> Active Rules</div>
+                    <button class="btn btn-outline btn-sm" onclick="FirewallModule.addRulePrompt()">
+                        <i data-lucide="plus"></i> Add Rule
                     </button>
                 </div>
-            </aside>
-            <main class="main-content">
-                <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;margin-bottom:28px;">
-                    <div>
-                        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--accent);margin-bottom:4px;">
-                            // OPERATIONAL MATRIX ACTIVE</div>
-                        <h1 style="font-family:'Syne';font-size:28px;font-weight:800;">Security Intelligence Terminal</h1>
-                        <p style="font-size:13px;color:var(--text-secondary);">
-                            Autonomous cluster stream protection ·
-                            <span id="clockSync" style="font-family:'IBM Plex Mono',monospace;">--:--:--</span>
-                        </p>
-                    </div>
-                    <button class="btn-action" id="generationReportTrigger">GENERATE SYSTEM AUDIT</button>
+                <div class="data-list" id="firewallRulesList" role="list"></div>
+            </div>
+        </section>
+
+        <!-- ============================================================
+        WEB SHIELD
+        ============================================================ -->
+        <section id="web" class="tab-pane" role="tabpanel" aria-labelledby="tab-web">
+            <h2 class="section-title title-2 accent-line"><i data-lucide="globe"></i> Web Threat &amp; Phishing Filter</h2>
+            <div class="card">
+                <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                    <input type="text" id="webUrlInput" class="input-field" style="flex:1; min-width:180px;" placeholder="Enter domain URL to inspect…" aria-label="URL to inspect" />
+                    <button class="btn" onclick="WebShieldModule.checkUrl()"><i data-lucide="search"></i> Inspect</button>
                 </div>
-                <div class="kpi-grid">
-                    <div class="kpi-card"><div class="kpi-label">Blocks Executed</div><div class="kpi-value" id="hudMetricBlocked">4,129</div><div class="kpi-delta">// STREAM NOMINAL</div></div>
-                    <div class="kpi-card"><div class="kpi-label">Active Vector Hooks</div><div class="kpi-value" id="hudMetricIncidents" style="color:var(--warning);">2</div><div class="kpi-delta warn">⚡ HIGH URGENCY</div></div>
-                    <div class="kpi-card"><div class="kpi-label">Pipeline Delay</div><div class="kpi-value" id="hudMetricLatency" style="color:var(--info);">0.8ms</div><div class="kpi-delta" style="color:var(--info);">EDGE OPTIMIZED</div></div>
-                    <div class="kpi-card"><div class="kpi-label">Node Confidence</div><div class="kpi-value" id="hudMetricRisk">98.4%</div><div class="kpi-delta">// VERIFIED CLUSTER</div></div>
+                <div id="webResult" class="mt-2"></div>
+            </div>
+        </section>
+
+        <!-- ============================================================
+        EMAIL SENTRY
+        ============================================================ -->
+        <section id="email" class="tab-pane" role="tabpanel" aria-labelledby="tab-email">
+            <h2 class="section-title title-2 accent-line"><i data-lucide="mail"></i> Protocol Email Sentry</h2>
+            <div class="card">
+                <p class="text-muted text-sm mb-2">Scans IMAP/SMTP transport for suspicious attachments and link redirections.</p>
+                <button class="btn" onclick="EmailModule.scanInbox()"><i data-lucide="mail-check"></i> Verify Transport</button>
+                <div id="emailResults" class="data-list mt-2"></div>
+            </div>
+        </section>
+
+        <!-- ============================================================
+        USB GUARD
+        ============================================================ -->
+        <section id="usb" class="tab-pane" role="tabpanel" aria-labelledby="tab-usb">
+            <h2 class="section-title title-2 accent-line"><i data-lucide="hard-drive"></i> External Media Sentry</h2>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Connected Mass Storage Volumes</div>
+                    <button class="btn btn-outline btn-sm" onclick="USBModule.scanUSB()"><i data-lucide="scan-line"></i> Inspect</button>
                 </div>
-                <div class="layout-matrix">
-                    <div class="panel">
-                        <div class="panel-head">
-                            <span>VOLUMETRIC ATTACK VECTOR TIMELINE</span>
-                            <div class="tab-group" id="chartTimeframeSwitchGroup">
-                                <button class="chart-tab active" data-span="7d">7D</button>
-                                <button class="chart-tab" data-span="30d">30D</button>
-                                <button class="chart-tab" data-span="90d">90D</button>
-                            </div>
-                        </div>
-                        <div class="chart-frame"><canvas id="telemetryDataCanvas"></canvas></div>
-                    </div>
-                    <div class="panel">
-                        <div class="panel-head"><span>INGRESS REGION VECTOR GEOGRAPHY</span></div>
-                        <div class="geo-list" id="geographyMetricTarget"></div>
-                    </div>
-                </div>
-                <div class="layout-matrix">
-                    <div class="panel">
-                        <div class="panel-head">
-                            <span>REAL-TIME AUDIT BLOCK LOGS</span>
-                            <button class="btn-secondary" id="eventFlushTrigger">FLUSH HISTORICAL STREAM</button>
-                        </div>
-                        <div class="events-container" id="eventRealtimeStreamTarget"></div>
-                    </div>
-                    <div class="panel">
-                        <div class="panel-head"><span>COGNITIVE INTELLIGENCE ASSISTANT</span></div>
-                        <div class="ai-shell">
-                            <div class="ai-logs" id="aiAssistantDialogContainer">
-                                <div class="log-block system">
-                                    <span class="log-tag">// AGENT_SYSTEM</span>
-                                    Cluster parsing infrastructure initialized. Query telemetry analysis points.
-                                </div>
-                            </div>
-                            <div class="console-input-area">
-                                <input type="text" class="console-input" id="aiConsoleInputHook"
-                                placeholder="Input execution string (e.g., stats, flush, help)...">
-                                <button class="btn-action" id="aiConsoleDispatchTrigger" style="width:40px;padding:0;">➤</button>
-                            </div>
-                        </div>
+                <div id="usbStatus" class="data-list">
+                    <div class="data-item">
+                        <span>Mass Storage (E:) · USB 3.1</span>
+                        <span class="badge badge-success">Clean</span>
                     </div>
                 </div>
-            </main>
-        </div>
-    </div>
-
-    <script>
-        // ╔══════════════════════════════════════════════════════════════╗
-        // ║  GUARD AI — FULL-STACK AUTHENTICATION ENGINE v4.5          ║
-        // ║  Implements: bcrypt-style hashing, JWT sessions,           ║
-        // ║  Zod-style validation, HTTP-only cookie simulation,        ║
-        // ║  CSRF protection, rate-limiting stubs, audit logging.      ║
-        // ╚══════════════════════════════════════════════════════════════╝
-
-        // ─────────────────────────────────────────────
-        // 1. DATABASE SCHEMA (Emulated via localStorage)
-        //    Mirroring: Prisma + PostgreSQL models
-        // ─────────────────────────────────────────────
-        const DB = (() => {
-            const STORE_KEY = 'guardai_secure_db_v45';
-
-            /**
-             * User Model (mirrors Prisma schema):
-             * {
-             *   id: string (UUID v4),
-             *   email: string (unique, indexed),
-             *   username: string,
-             *   passwordHash: string (bcrypt/argon2 simulated),
-             *   role: 'PLATFORM_LEAD' | 'SOC_ANALYST' | 'OPERATOR',
-             *   clearanceLevel: 'LVL-1' | 'LVL-2' | 'LVL-3',
-             *   createdAt: ISO string,
-             *   updatedAt: ISO string,
-             *   failedLoginAttempts: number,
-             *   lockedUntil: ISO string | null,
-             * }
-             *
-             * Session Model (JWT-based, stored in HTTP-only cookie):
-             * Handled separately via token issuance/validation.
-             * No session data persisted client-side beyond the token.
-             */
-
-            // Seed database with initial users (passwords pre-hashed)
-            const DEFAULT_USERS = [
-                {
-                    id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-                    email: 'admin@guardai.com',
-                    username: 'Sterling',
-                    passwordHash: '$2b$12$LJ3m4ys3GZkY8p1vWqXt0.4X9K0mN5vR7sT2uV8wY1zA3bC5dE7fG', // bcrypt hash of 'admin123'
-                    role: 'PLATFORM_LEAD',
-                    clearanceLevel: 'LVL-3',
-                    createdAt: '2025-01-15T08:00:00.000Z',
-                    updatedAt: '2025-06-01T12:00:00.000Z',
-                    failedLoginAttempts: 0,
-                    lockedUntil: null,
-                },
-                {
-                    id: 'b2c3d4e5-f6a7-8901-bcde-f12345678901',
-                    email: 'ops@guardai.com',
-                    username: 'Vance',
-                    passwordHash: '$2b$12$M4n5o6pQrS8tU9vW0xY1z.5A0bC1dE2fG3hI4jK5lM6nO7pQ8rS9', // bcrypt hash of 'ops123'
-                    role: 'SOC_ANALYST',
-                    clearanceLevel: 'LVL-2',
-                    createdAt: '2025-02-20T10:30:00.000Z',
-                    updatedAt: '2025-05-28T09:15:00.000Z',
-                    failedLoginAttempts: 0,
-                    lockedUntil: null,
-                },
-            ];
-
-            function initialize() {
-                if (!localStorage.getItem(STORE_KEY)) {
-                    localStorage.setItem(STORE_KEY, JSON.stringify(DEFAULT_USERS));
-                }
-            }
-
-            function getAllUsers() {
-                initialize();
-                try {
-                    return JSON.parse(localStorage.getItem(STORE_KEY)) || [];
-                } catch (e) {
-                    return [];
-                }
-            }
-
-            function saveAllUsers(users) {
-                localStorage.setItem(STORE_KEY, JSON.stringify(users));
-            }
-
-            function findUserByEmail(email) {
-                const users = getAllUsers();
-                return users.find(u => u.email.toLowerCase() === email.toLowerCase()) || null;
-            }
-
-            function findUserById(id) {
-                const users = getAllUsers();
-                return users.find(u => u.id === id) || null;
-            }
-
-            function insertUser(userData) {
-                const users = getAllUsers();
-                const newUser = {
-                    id: generateUUID(),
-                    email: userData.email,
-                    username: userData.username,
-                    passwordHash: userData.passwordHash,
-                    role: 'SOC_ANALYST',
-                    clearanceLevel: 'LVL-2',
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
-                    failedLoginAttempts: 0,
-                    lockedUntil: null,
-                };
-                users.push(newUser);
-                saveAllUsers(users);
-                return newUser;
-            }
-
-            function updateUser(id, updates) {
-                const users = getAllUsers();
-                const index = users.findIndex(u => u.id === id);
-                if (index === -1) return null;
-                users[index] = { ...users[index], ...updates, updatedAt: new Date().toISOString() };
-                saveAllUsers(users);
-                return users[index];
-            }
-
-            function generateUUID() {
-                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                    const r = (Math.random() * 16) | 0;
-                    const v = c === 'x' ? r : (r & 0x3) | 0x8;
-                    return v.toString(16);
-                });
-            }
-
-            return { getAllUsers, findUserByEmail, findUserById, insertUser, updateUser, initialize };
-        })();
-
-        // ─────────────────────────────────────────────
-        // 2. CRYPTO MODULE — bcrypt/argon2 simulation
-        //    In production: use bcryptjs or argon2
-        // ─────────────────────────────────────────────
-        const Crypto = (() => {
-            /**
-             * Simulates bcrypt hashing.
-             * In a real Next.js app, this runs server-side via:
-             *   import bcrypt from 'bcryptjs';
-             *   const hash = await bcrypt.hash(password, 12);
-             */
-            async function hashPassword(password) {
-                // Simulate async hashing delay (bcrypt is intentionally slow)
-                await delay(80);
-                // Create a deterministic but opaque hash using a simple scheme
-                // REAL IMPLEMENTATION: return bcrypt.hash(password, 12);
-                const salt = generateSalt();
-                const hash = simpleScramble(password, salt);
-                return `$2b$12$${salt}$${hash}`;
-            }
-
-            /**
-             * Simulates bcrypt comparison.
-             * In production: await bcrypt.compare(plaintext, hash);
-             */
-            async function comparePassword(plaintext, storedHash) {
-                await delay(60);
-                // REAL IMPLEMENTATION: return bcrypt.compare(plaintext, storedHash);
-                const parts = storedHash.split('$');
-                if (parts.length < 5) return false;
-                const salt = parts[3];
-                const expectedHash = parts[4];
-                const computedHash = simpleScramble(plaintext, salt);
-                return computedHash === expectedHash;
-            }
-
-            function generateSalt() {
-                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789./';
-                let salt = '';
-                for (let i = 0; i < 22; i++) {
-                    salt += chars.charAt(Math.floor(Math.random() * chars.length));
-                }
-                return salt;
-            }
-
-            function simpleScramble(input, salt) {
-                // NOT cryptographically secure — for simulation only.
-                // Real apps use bcrypt/argon2 server-side.
-                let combined = salt + ':' + input;
-                let hash = 0;
-                for (let i = 0; i < combined.length; i++) {
-                    const char = combined.charCodeAt(i);
-                    hash = ((hash << 5) - hash) + char;
-                    hash |= 0; // Convert to 32-bit integer
-                }
-                // Produce a consistent-looking hash string
-                const absHash = Math.abs(hash).toString(16).padStart(32, '0');
-                const iterations = 12;
-                let result = absHash;
-                for (let i = 0; i < iterations; i++) {
-                    result = simpleRound(result, salt);
-                }
-                return result.substring(0, 53);
-            }
-
-            function simpleRound(h, salt) {
-                let out = '';
-                for (let i = 0; i < h.length; i++) {
-                    const c = h.charCodeAt(i);
-                    const s = salt.charCodeAt(i % salt.length);
-                    out += String.fromCharCode(((c ^ s) % 94) + 33);
-                }
-                return out;
-            }
-
-            function delay(ms) {
-                return new Promise(resolve => setTimeout(resolve, ms));
-            }
-
-            return { hashPassword, comparePassword };
-        })();
-
-        // ─────────────────────────────────────────────
-        // 3. JWT MODULE — Token issuance & validation
-        //    HTTP-only cookie simulation
-        // ─────────────────────────────────────────────
-        const JWT = (() => {
-            const SECRET_KEY = 'guardai-jwt-secret-v45-8a7b3c9d1e2f4a6b8c0d';
-            const TOKEN_EXPIRY_MS = 2 * 60 * 60 * 1000; // 2 hours
-            const REFRESH_WINDOW_MS = 30 * 60 * 1000; // 30 minutes
-
-            /**
-             * Issues a signed JWT-like token.
-             * In production: use jose or jsonwebtoken library.
-             * Structure: base64url(header).base64url(payload).signature
-             */
-            function issueToken(user) {
-                const header = { alg: 'HS256', typ: 'JWT' };
-                const now = Date.now();
-                const payload = {
-                    sub: user.id,
-                    email: user.email,
-                    username: user.username,
-                    role: user.role,
-                    clearanceLevel: user.clearanceLevel,
-                    iat: Math.floor(now / 1000),
-                    exp: Math.floor((now + TOKEN_EXPIRY_MS) / 1000),
-                    jti: generateTokenId(),
-                };
-                const headerB64 = base64urlEncode(JSON.stringify(header));
-                const payloadB64 = base64urlEncode(JSON.stringify(payload));
-                const signature = createSignature(headerB64, payloadB64, SECRET_KEY);
-                return `${headerB64}.${payloadB64}.${signature}`;
-            }
-
-            /**
-             * Verifies and decodes a token.
-             * Returns { valid: boolean, payload: object | null, error: string | null }
-             */
-            function verifyToken(token) {
-                if (!token) {
-                    return { valid: false, payload: null, error: 'TOKEN_MISSING' };
-                }
-                const parts = token.split('.');
-                if (parts.length !== 3) {
-                    return { valid: false, payload: null, error: 'TOKEN_MALFORMED' };
-                }
-                const [headerB64, payloadB64, signature] = parts;
-                // Verify signature
-                const expectedSig = createSignature(headerB64, payloadB64, SECRET_KEY);
-                if (signature !== expectedSig) {
-                    return { valid: false, payload: null, error: 'TOKEN_SIGNATURE_INVALID' };
-                }
-                // Decode payload
-                let payload;
-                try {
-                    payload = JSON.parse(base64urlDecode(payloadB64));
-                } catch (e) {
-                    return { valid: false, payload: null, error: 'TOKEN_PAYLOAD_CORRUPT' };
-                }
-                // Check expiration
-                const nowSec = Math.floor(Date.now() / 1000);
-                if (payload.exp && payload.exp < nowSec) {
-                    return { valid: false, payload: null, error: 'TOKEN_EXPIRED' };
-                }
-                // Check if user still exists in DB
-                const user = DB.findUserById(payload.sub);
-                if (!user) {
-                    return { valid: false, payload: null, error: 'USER_NOT_FOUND' };
-                }
-                // Check if account is locked
-                if (user.lockedUntil && new Date(user.lockedUntil) > new Date()) {
-                    return { valid: false, payload: null,
-                    error: 'ACCOUNT_LOCKED' };
-                }
-                return { valid: true, payload, error: null };
-            }
-
-            function createSignature(headerB64, payloadB64, secret) {
-                // HMAC-SHA256 simulation
-                const data = headerB64 + '.' + payloadB64;
-                let hash = 0;
-                const combined = data + secret;
-                for (let i = 0; i < combined.length; i++) {
-                    hash = ((hash << 5) - hash) + combined.charCodeAt(i);
-                    hash |= 0;
-                }
-                // Multiple rounds for diffusion
-                let sig = Math.abs(hash).toString(16).padStart(16, '0');
-                for (let r = 0; r < 8; r++) {
-                    sig = rotateHash(sig, secret, r);
-                }
-                return base64urlEncode(sig);
-            }
-
-            function rotateHash(h, secret, round) {
-                let out = '';
-                for (let i = 0; i < h.length; i++) {
-                    const c = h.charCodeAt(i);
-                    const s = secret.charCodeAt((i + round * 7) % secret.length);
-                    out += String.fromCharCode(((c ^ s ^ (round * 31)) % 94) + 33);
-                }
-                return out;
-            }
-
-            function base64urlEncode(str) {
-                return btoa(unescape(encodeURIComponent(str)))
-                    .replace(/\+/g, '-')
-                    .replace(/\//g, '_')
-                    .replace(/=+$/, '');
-            }
-
-            function base64urlDecode(str) {
-                str = str.replace(/-/g, '+').replace(/_/g, '/');
-                while (str.length % 4) str += '=';
-                return decodeURIComponent(escape(atob(str)));
-            }
-
-            function generateTokenId() {
-                return 'jti_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
-            }
-
-            function getTokenExpiryMs() {
-                return TOKEN_EXPIRY_MS;
-            }
-
-            return { issueToken, verifyToken, getTokenExpiryMs };
-        })();
-
-        // ─────────────────────────────────────────────
-        // 4. ZOD-STYLE VALIDATION SCHEMA
-        //    Input sanitization & validation
-        // ─────────────────────────────────────────────
-        const Validator = {
-            /**
-             * Validates email format.
-             * Returns { valid: boolean, error: string | null, sanitized: string | null }
-             */
-            validateEmail(email) {
-                if (!email || typeof email !== 'string') {
-                    return { valid: false, error: 'Email is required', sanitized: null };
-                }
-                const trimmed = email.trim().toLowerCase();
-                if (trimmed.length === 0) {
-                    return { valid: false, error: 'Email is required', sanitized: null };
-                }
-                if (trimmed.length > 254) {
-                    return { valid: false, error: 'Email exceeds maximum length', sanitized: null };
-                }
-                // RFC 5322 simplified regex
-                const emailRegex = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
-                if (!emailRegex.test(trimmed)) {
-                    return { valid: false, error: "This email doesn't look right", sanitized: null };
-                }
-                // Disallow dangerous characters
-                if (/[<>"'()]/.test(trimmed)) {
-                    return { valid: false, error: 'Email contains invalid characters', sanitized: null };
-                }
-                return { valid: true, error: null, sanitized: trimmed };
-            },
-
-            /**
-             * Validates password strength.
-             */
-            validatePassword(password) {
-                if (!password || typeof password !== 'string') {
-                    return { valid: false, error: 'Password is required', sanitized: null };
-                }
-                if (password.length < 6) {
-                    return { valid: false, error: 'Crypto key requires minimum 6 characters', sanitized: null };
-                }
-                if (password.length > 128) {
-                    return { valid: false, error: 'Password exceeds maximum length of 128 characters',
-                    sanitized: null };
-                }
-                // No sanitization beyond trimming — passwords should allow all characters
-                return { valid: true, error: null, sanitized: password };
-            },
-
-            /**
-             * Validates username.
-             */
-            validateUsername(username) {
-                if (!username || typeof username !== 'string') {
-                    return { valid: false, error: 'Callsign is required', sanitized: null };
-                }
-                const trimmed = username.trim();
-                if (trimmed.length < 2) {
-                    return { valid: false, error: 'Callsign must be at least 2 characters', sanitized: null };
-                }
-                if (trimmed.length > 50) {
-                    return { valid: false, error: 'Callsign exceeds maximum length', sanitized: null };
-                }
-                // Alphanumeric + underscores + hyphens only
-                const nameRegex = /^[a-zA-Z0-9_\- ]+$/;
-                if (!nameRegex.test(trimmed)) {
-                    return { valid: false,
-                        error: 'Callsign contains invalid characters. Use letters, numbers, underscores, or hyphens.',
-                        sanitized: null };
-                }
-                return { valid: true, error: null, sanitized: trimmed };
-            },
-
-            /**
-             * Sanitizes any string input to prevent XSS/injection.
-             */
-            sanitizeString(input) {
-                if (!input || typeof input !== 'string') return '';
-                return input
-                    .replace(/&/g, '&amp;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;')
-                    .replace(/"/g, '&quot;')
-                    .replace(/'/g, '&#x27;')
-                    .replace(/\//g, '&#x2F;');
-            },
-        };
-
-        // ─────────────────────────────────────────────
-        // 5. SESSION MANAGER — HTTP-only cookie simulation
-        //    In production: Set-Cookie header with
-        //    HttpOnly; Secure; SameSite=Lax
-        // ─────────────────────────────────────────────
-        const SessionManager = (() => {
-            const SESSION_KEY = 'guardai_session_token_v45';
-            // In-memory blacklist for revoked tokens (simulates server-side invalidation)
-            let tokenBlacklist = new Set();
-
-            function setSession(user) {
-                const token = JWT.issueToken(user);
-                // In production, this is an HTTP-only cookie set by the server.
-                // We store in localStorage for this demo but mark it clearly.
-                const sessionData = {
-                    token,
-                    issuedAt: Date.now(),
-                    expiresAt: Date.now() + JWT.getTokenExpiryMs(),
-                };
-                localStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
-                return token;
-            }
-
-            function getSession() {
-                try {
-                    const raw = localStorage.getItem(SESSION_KEY);
-                    if (!raw) return null;
-                    const sessionData = JSON.parse(raw);
-                    // Check if token is blacklisted
-                    if (tokenBlacklist.has(sessionData.token)) {
-                        clearSession();
-                        return null;
-                    }
-                    // Verify the JWT
-                    const verification = JWT.verifyToken(sessionData.token);
-                    if (!verification.valid) {
-                        clearSession();
-                        return null;
-                    }
-                    return { ...sessionData, payload: verification.payload };
-                } catch (e) {
-                    clearSession();
-                    return null;
-                }
-            }
-
-            function clearSession() {
-                const existing = getSessionRaw();
-                if (existing && existing.token) {
-                    tokenBlacklist.add(existing.token); // Blacklist for server-side invalidation
-                }
-                localStorage.removeItem(SESSION_KEY);
-            }
-
-            function getSessionRaw() {
-                try {
-                    const raw = localStorage.getItem(SESSION_KEY);
-                    return raw ? JSON.parse(raw) : null;
-                } catch (e) {
-                    return null;
-                }
-            }
-
-            function isAuthenticated() {
-                const session = getSession();
-                return session !== null && session.payload !== null;
-            }
-
-            function getCurrentUser() {
-                const session = getSession();
-                if (!session || !session.payload) return null;
-                return DB.findUserById(session.payload.sub);
-            }
-
-            // Clean up expired blacklist entries periodically
-            function purgeBlacklist() {
-                // In production, blacklist entries have TTL matching token expiry
-                tokenBlacklist.clear(); // Simplified for demo
-            }
-            setInterval(purgeBlacklist, 5 * 60 * 1000);
-
-            return { setSession, getSession, clearSession, isAuthenticated, getCurrentUser };
-        })();
-
-        // ─────────────────────────────────────────────
-        // 6. RATE LIMITER — Brute force protection
-        // ─────────────────────────────────────────────
-        const RateLimiter = (() => {
-            const attempts = new Map(); // email -> { count, windowStart, blockedUntil }
-            const MAX_ATTEMPTS = 5;
-            const WINDOW_MS = 15 * 60 * 1000; // 15 minutes
-            const BLOCK_DURATION_MS = 30 * 60 * 1000; // 30 minutes
-
-            function recordAttempt(email) {
-                const key = email.toLowerCase();
-                const now = Date.now();
-                let record = attempts.get(key);
-
-                if (!record || now - record.windowStart > WINDOW_MS) {
-                    record = { count: 1, windowStart: now, blockedUntil: null };
-                } else {
-                    record.count++;
-                }
-
-                if (record.count >= MAX_ATTEMPTS) {
-                    record.blockedUntil = now + BLOCK_DURATION_MS;
-                }
-
-                attempts.set(key, record);
-                return record;
-            }
-
-            function isBlocked(email) {
-                const key = email.toLowerCase();
-                const record = attempts.get(key);
-                if (!record) return false;
-                if (record.blockedUntil && Date.now() < record.blockedUntil) {
-                    return true;
-                }
-                // Reset if block expired
-                if (record.blockedUntil && Date.now() >= record.blockedUntil) {
-                    attempts.delete(key);
-                    return false;
-                }
-                return false;
-            }
-
-            function getRemainingAttempts(email) {
-                const key = email.toLowerCase();
-                const record = attempts.get(key);
-                if (!record) return MAX_ATTEMPTS;
-                const now = Date.now();
-                if (now - record.windowStart > WINDOW_MS) {
-                    attempts.delete(key);
-                    return MAX_ATTEMPTS;
-                }
-                return Math.max(0, MAX_ATTEMPTS - record.count);
-            }
-
-            function getBlockTimeRemaining(email) {
-                const key = email.toLowerCase();
-                const record = attempts.get(key);
-                if (!record || !record.blockedUntil) return 0;
-                const remaining = record.blockedUntil - Date.now();
-                return Math.max(0, Math.ceil(remaining / 1000 / 60));
-            }
-
-            function resetAttempts(email) {
-                attempts.delete(email.toLowerCase());
-            }
-
-            return { recordAttempt, isBlocked, getRemainingAttempts, getBlockTimeRemaining, resetAttempts };
-        })();
-
-        // ─────────────────────────────────────────────
-        // 7. AUTH SERVICE — Core business logic
-        //    Mirrors Next.js API route handlers
-        // ─────────────────────────────────────────────
-        const AuthService = {
-            /**
-             * POST /api/auth/register
-             * Registers a new user with Zod validation + bcrypt hashing.
-             */
-            async register({ username, email, password }) {
-                // Step 1: Validate all inputs with Zod-style schema
-                const emailResult = Validator.validateEmail(email);
-                if (!emailResult.valid) {
-                    return { success: false, error: emailResult.error, code: 'VALIDATION_EMAIL' };
-                }
-                const usernameResult = Validator.validateUsername(username);
-                if (!usernameResult.valid) {
-                    return { success: false, error: usernameResult.error, code: 'VALIDATION_USERNAME' };
-                }
-                const passwordResult = Validator.validatePassword(password);
-                if (!passwordResult.valid) {
-                    return { success: false, error: passwordResult.error, code: 'VALIDATION_PASSWORD' };
-                }
-
-                // Step 2: Check for existing user
-                const existingUser = DB.findUserByEmail(emailResult.sanitized);
-                if (existingUser) {
-                    return { success: false, error: 'This email is already provisioned in the system.',
-                        code: 'EMAIL_EXISTS' };
-                }
-
-                // Step 3: Hash the password with bcrypt (simulated)
-                const passwordHash = await Crypto.hashPassword(passwordResult.sanitized);
-
-                // Step 4: Insert user into database
-                const newUser = DB.insertUser({
-                    email: emailResult.sanitized,
-                    username: usernameResult.sanitized,
-                    passwordHash,
-                });
-
-                // Step 5: Audit log (in production: write to audit trail)
-                console.log(`[AUDIT] New user registered: ${newUser.email} (${newUser.id})`);
-
-                // Step 6: Return success — do NOT return the password hash
-                return {
-                    success: true,
-                    data: {
-                        id: newUser.id,
-                        email: newUser.email,
-                        username: newUser.username,
-                        role: newUser.role,
-                        clearanceLevel: newUser.clearanceLevel,
-                        createdAt: newUser.createdAt,
-                    },
-                };
-            },
-
-            /**
-             * POST /api/auth/login
-             * Authenticates user and issues a JWT session token.
-             */
-            async login({ email, password }) {
-                // Step 1: Validate inputs
-                const emailResult = Validator.validateEmail(email);
-                if (!emailResult.valid) {
-                    return { success: false, error: emailResult.error, code: 'VALIDATION_EMAIL' };
-                }
-                const passwordResult = Validator.validatePassword(password);
-                if (!passwordResult.valid) {
-                    return { success: false, error: 'Invalid credentials format', code: 'VALIDATION_PASSWORD' };
-                }
-
-                // Step 2: Check rate limiter
-                if (RateLimiter.isBlocked(emailResult.sanitized)) {
-                    const minutesLeft = RateLimiter.getBlockTimeRemaining(emailResult.sanitized);
-                    return {
-                        success: false,
-                        error: `Account temporarily locked due to multiple failed attempts. Retry in ${minutesLeft} minute(s).`,
-                        code: 'RATE_LIMITED',
-                    };
-                }
-
-                // Step 3: Find user
-                const user = DB.findUserByEmail(emailResult.sanitized);
-                if (!user) {
-                    RateLimiter.recordAttempt(emailResult.sanitized);
-                    // Use identical error message to prevent user enumeration
-                    return { success: false, error: 'Invalid operator identity or crypto key.', code: 'AUTH_FAILED' };
-                }
-
-                // Step 4: Check account lock
-                if (user.lockedUntil && new Date(user.lockedUntil) > new Date()) {
-                    return { success: false, error: 'Account is locked. Contact platform administrator.',
-                        code: 'ACCOUNT_LOCKED' };
-                }
-
-                // Step 5: Verify password with bcrypt comparison
-                const passwordValid = await Crypto.comparePassword(passwordResult.sanitized, user.passwordHash);
-                if (!passwordValid) {
-                    RateLimiter.recordAttempt(emailResult.sanitized);
-                    // Increment failed attempts
-                    const newAttempts = (user.failedLoginAttempts || 0) + 1;
-                    const updates = { failedLoginAttempts: newAttempts };
-                    if (newAttempts >= 10) {
-                        updates.lockedUntil = new Date(Date.now() + 60 * 60 * 1000).toISOString(); // 1 hour lock
-                    }
-                    DB.updateUser(user.id, updates);
-                    return { success: false, error: 'Invalid operator identity or crypto key.', code: 'AUTH_FAILED' };
-                }
-
-                // Step 6: Reset failed attempts on successful login
-                DB.updateUser(user.id, { failedLoginAttempts: 0, lockedUntil: null });
-                RateLimiter.resetAttempts(emailResult.sanitized);
-
-                // Step 7: Issue JWT session token
-                const token = SessionManager.setSession(user);
-
-                // Step 8: Audit log
-                console.log(`[AUDIT] User logged in: ${user.email} (${user.id})`);
-
-                // Step 9: Return user data (NO password hash)
-                return {
-                    success: true,
-                    data: {
-                        id: user.id,
-                        email: user.email,
-                        username: user.username,
-                        role: user.role,
-                        clearanceLevel: user.clearanceLevel,
-                        token, // In production, this is set as HTTP-only cookie; returned here for demo
-                    },
-                };
-            },
-
-            /**
-             * GET /api/auth/session
-             * Validates the current session and returns user data.
-             */
-            getSession() {
-                const session = SessionManager.getSession();
-                if (!session || !session.payload) {
-                    return { success: false, error: 'No active session', code: 'UNAUTHORIZED' };
-                }
-                const user = DB.findUserById(session.payload.sub);
-                if (!user) {
-                    SessionManager.clearSession();
-                    return { success: false, error: 'User not found', code: 'USER_GONE' };
-                }
-                return {
-                    success: true,
-                    data: {
-                        id: user.id,
-                        email: user.email,
-                        username: user.username,
-                        role: user.role,
-                        clearanceLevel: user.clearanceLevel,
-                    },
-                };
-            },
-
-            /**
-             * POST /api/auth/logout
-             * Invalidates the current session (blacklists the token).
-             */
-            logout() {
-                SessionManager.clearSession();
-                console.log('[AUDIT] Session terminated');
-                return { success: true };
-            },
-        };
-
-        // ─────────────────────────────────────────────
-        // 8. APPLICATION STATE
-        // ─────────────────────────────────────────────
-        let activeSession = null;
-        let authMode = 'login'; // 'login' | 'register'
-        let isSubmitting = false;
-        let chartInstance = null;
-        let currentSpan = '7d';
-        let telemetryInterval = null;
-
-        // ─────────────────────────────────────────────
-        // 9. UI HELPERS
-        // ─────────────────────────────────────────────
-        function showToast(msg) {
-            const toast = document.getElementById('systemToast');
-            if (!toast) return;
-            toast.innerText = `// NOTICE: ${msg.toUpperCase()}`;
-            toast.classList.add('active');
-            clearTimeout(toast._timeout);
-            toast._timeout = setTimeout(() => toast.classList.remove('active'), 3000);
+            </div>
+        </section>
+
+        <!-- ============================================================
+        NETWORK
+        ============================================================ -->
+        <section id="network" class="tab-pane" role="tabpanel" aria-labelledby="tab-network">
+            <h2 class="section-title title-2 accent-line"><i data-lucide="wifi"></i> Wi‑Fi &amp; Routing Integrity</h2>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i data-lucide="radio"></i> Interface Profile</div>
+                    <button class="btn btn-outline btn-sm" onclick="NetworkModule.refresh()"><i data-lucide="refresh-cw"></i> Re‑Evaluate</button>
+                </div>
+                <div id="networkProfile" class="data-list"></div>
+            </div>
+        </section>
+
+        <!-- ============================================================
+        PRIVACY
+        ============================================================ -->
+        <section id="privacy" class="tab-pane" role="tabpanel" aria-labelledby="tab-privacy">
+            <h2 class="section-title title-2 accent-line"><i data-lucide="eye-off"></i> System Permission &amp; Privacy Sentry</h2>
+            <div class="card">
+                <button class="btn" onclick="PrivacyModule.audit()"><i data-lucide="file-search"></i> Execute Privacy Audit</button>
+                <div id="privacyAuditResults" class="data-list mt-2"></div>
+            </div>
+        </section>
+
+        <!-- ============================================================
+        CLEANER
+        ============================================================ -->
+        <section id="cleaner" class="tab-pane" role="tabpanel" aria-labelledby="tab-cleaner">
+            <h2 class="section-title title-2 accent-line"><i data-lucide="trash-2"></i> Temporary Artifact Purge</h2>
+            <div class="card">
+                <div id="cleanerMetrics" class="text-sm mb-2">
+                    Unindexed Cache: <strong>240 MB</strong> · Stale Logs: <strong>45 MB</strong> · Temp Folders: <strong>118 MB</strong>
+                </div>
+                <button class="btn" onclick="CleanerModule.clean()"><i data-lucide="sparkles"></i> Purge Temporary Storage</button>
+            </div>
+        </section>
+
+        <!-- ============================================================
+        AI CONSOLE
+        ============================================================ -->
+        <section id="assistant" class="tab-pane" role="tabpanel" aria-labelledby="tab-assistant">
+            <h2 class="section-title title-2 accent-line"><i data-lucide="bot"></i> AI Security Console</h2>
+
+            <div class="quick-chips" role="toolbar" aria-label="Quick commands">
+                <button class="quick-chip" onclick="AssistantConsole.runCommand('/scan-quick')">/scan-quick</button>
+                <button class="quick-chip" onclick="AssistantConsole.runCommand('/purge-vault')">/purge-vault</button>
+                <button class="quick-chip" onclick="AssistantConsole.runCommand('/check-dns')">/check-dns</button>
+                <button class="quick-chip" onclick="AssistantConsole.runCommand('/status')">/status</button>
+            </div>
+
+            <div class="chat-container" id="chatContainer" role="log" aria-live="polite">
+                <div class="chat-bubble bot">Guardian Neural Core active. Query system states, firewall behaviors, or security protocols.</div>
+            </div>
+
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                <input type="text" id="chatInput" class="input-field" style="flex:1; min-width:160px;" placeholder="Ask about system state, threats, policies…" aria-label="Chat input" />
+                <button class="btn" id="btnChatSend"><i data-lucide="send"></i> Query</button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ============================================================
+    FOOTER
+    ============================================================ -->
+    <footer class="footer" style="text-align:center; color:var(--text-dim); font-size:0.75rem; padding-top:0.5rem;">
+        Guardian AI Antivirus · Enterprise Security Architecture
+    </footer>
+</div>
+
+<!-- ============================================================
+JAVASCRIPT — APPLICATION ENGINE (unchanged logic)
+============================================================ -->
+<script>
+    // ================================================================
+    //  TOAST SYSTEM
+    // ================================================================
+    const ToastSystem = {
+        container: null,
+
+        init() {
+            this.container = document.getElementById('toastContainer');
+        },
+
+        _show(message, type = 'info') {
+            if (!this.container) this.init();
+            const icons = {
+                success: 'check-circle',
+                danger: 'alert-circle',
+                warning: 'alert-triangle',
+                info: 'info'
+            };
+            const icon = icons[type] || 'info';
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.setAttribute('role', 'alert');
+            toast.innerHTML = `
+                <span class="toast-icon"><i data-lucide="${icon}"></i></span>
+                <span>${message}</span>
+                <button class="toast-close" aria-label="Dismiss notification"><i data-lucide="x"></i></button>
+            `;
+            this.container.appendChild(toast);
+            lucide.createIcons();
+
+            const closeBtn = toast.querySelector('.toast-close');
+            closeBtn.addEventListener('click', () => this._dismiss(toast));
+
+            setTimeout(() => this._dismiss(toast), 4500);
+        },
+
+        _dismiss(toast) {
+            if (toast.classList.contains('removing')) return;
+            toast.classList.add('removing');
+            setTimeout(() => {
+                if (toast.parentNode) toast.parentNode.removeChild(toast);
+            }, 300);
+        },
+
+        success(msg) { this._show(msg, 'success'); },
+        danger(msg) { this._show(msg, 'danger'); },
+        warning(msg) { this._show(msg, 'warning'); },
+        info(msg) { this._show(msg, 'info'); }
+    };
+
+    // ================================================================
+    //  SYSTEM STATE ENGINE
+    // ================================================================
+    const SystemState = {
+        score: 98,
+        scannedCount: 1420,
+        threatsCount: 0,
+        lastScanTime: 'Never',
+        quarantineVault: [],
+        activityLog: [
+            { id: 1, text: 'System Shield initialized · engine v4.12.0', time: '10:00:00 AM' },
+            { id: 2, text: 'Real‑time File System Monitor engaged', time: '10:00:02 AM' }
+        ],
+        firewallRules: [
+            { id: 1, app: 'svchost.exe', target: '91.234.12.3:8080', action: 'Block' },
+            { id: 2, app: 'chrome.exe', target: '172.217.16.206:443', action: 'Allow' },
+            { id: 3, app: 'node.exe', target: '127.0.0.1:3000', action: 'Allow' }
+        ],
+
+        updateMetricsUI() {
+            document.getElementById('valScore').textContent = `${this.score}/100`;
+            document.getElementById('valScanned').textContent = this.scannedCount.toLocaleString();
+            document.getElementById('valThreats').textContent = this.quarantineVault.length;
+            document.getElementById('valLastScan').textContent = this.lastScanTime;
+            // Trends
+            document.getElementById('trendScore').textContent = this.score > 90 ? '▲ 2%' : '▼ 4%';
+            document.getElementById('trendScanned').textContent = '▲ 12%';
+            document.getElementById('trendThreats').textContent = this.quarantineVault.length === 0 ? '▼ 0%' : '▲ ' + this
+            .quarantineVault.length + '%';
+        },
+
+        addLog(text) {
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            this.activityLog.unshift({ id: Date.now(), text, time });
+            if (this.activityLog.length > 100) this.activityLog.pop();
+            ActivityLogModule.render();
         }
+    };
 
-        function showErrorBox(message) {
-            const box = document.getElementById('authErrorBox');
-            const successBox = document.getElementById('authSuccessBox');
-            if (box) {
-                box.innerText = message;
-                box.classList.add('visible');
-            }
-            if (successBox) successBox.classList.remove('visible');
-        }
-
-        function showSuccessBox(message) {
-            const box = document.getElementById('authSuccessBox');
-            const errorBox = document.getElementById('authErrorBox');
-            if (box) {
-                box.innerText = message;
-                box.classList.add('visible');
-            }
-            if (errorBox) errorBox.classList.remove('visible');
-        }
-
-        function hideAllBoxes() {
-            const errorBox = document.getElementById('authErrorBox');
-            const successBox = document.getElementById('authSuccessBox');
-            if (errorBox) errorBox.classList.remove('visible');
-            if (successBox) successBox.classList.remove('visible');
-        }
-
-        function setFieldError(fieldId, message) {
-            const field = document.getElementById(fieldId);
-            const errorEl = document.getElementById(fieldId + '_error');
-            if (field) field.classList.add('input-error');
-            if (errorEl) {
-                errorEl.innerText = message;
-                errorEl.classList.add('visible');
-            }
-        }
-
-        function clearFieldError(fieldId) {
-            const field = document.getElementById(fieldId);
-            const errorEl = document.getElementById(fieldId + '_error');
-            if (field) field.classList.remove('input-error');
-            if (errorEl) {
-                errorEl.innerText = '';
-                errorEl.classList.remove('visible');
-            }
-        }
-
-        function clearAllFieldErrors() {
-            document.querySelectorAll('.auth-input').forEach(el => el.classList.remove('input-error'));
-            document.querySelectorAll('.field-error-text').forEach(el => {
-                el.innerText = '';
-                el.classList.remove('visible');
-            });
-        }
-
-        function setSubmitLoading(loading) {
-            isSubmitting = loading;
-            const btn = document.getElementById('authActionSubmit');
-            if (!btn) return;
-            if (loading) {
-                btn.classList.add('loading');
-                btn.disabled = true;
-            } else {
-                btn.classList.remove('loading');
-                btn.disabled = false;
-            }
-        }
-
-        // ─────────────────────────────────────────────
-        // 10. AUTH FORM RENDERING
-        // ─────────────────────────────────────────────
-        function renderAuthForm() {
-            const fieldsDiv = document.getElementById('authFormFields');
-            const submitBtn = document.getElementById('authActionSubmit');
-            const toggleContainer = document.getElementById('authModeToggler');
-            if (!fieldsDiv || !submitBtn || !toggleContainer) return;
-
-            hideAllBoxes();
-            clearAllFieldErrors();
-            setSubmitLoading(false);
-
-            if (authMode === 'login') {
-                fieldsDiv.innerHTML = `
-                    <div class="input-group">
-                        <label class="input-label" for="loginEmailField">Operator Identity Email</label>
-                        <input type="email" id="loginEmailField" class="auth-input" placeholder="operator@guardai.com" value="admin@guardai.com" required autocomplete="email">
-                        <div class="field-error-text" id="loginEmailField_error"></div>
-                    </div>
-                    <div class="input-group">
-                        <label class="input-label" for="loginPassField">Security Crypto Key</label>
-                        <div class="password-wrapper">
-                            <input type="password" id="loginPassField" class="auth-input" placeholder="Enter your key" value="admin123" required autocomplete="current-password">
-                            <button type="button" class="toggle-password-btn" data-target="loginPassField">SHOW</button>
-                        </div>
-                        <div class="field-error-text" id="loginPassField_error"></div>
+    // ================================================================
+    //  ACTIVITY LOG MODULE
+    // ================================================================
+    const ActivityLogModule = {
+        render() {
+            const list = document.getElementById('activityLogList');
+            if (!SystemState.activityLog.length) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <i data-lucide="clipboard-list"></i>
+                        <div class="empty-title">No activity yet</div>
+                        <div class="empty-desc">System events will appear here</div>
                     </div>
                 `;
-                submitBtn.querySelector('.btn-text').innerText = 'EXECUTE SYSTEM ACCESS';
-                toggleContainer.innerHTML =
-                    `No verified token? <span id="actionToggleTriggerLink">Register Security Key</span>`;
-            } else {
-                fieldsDiv.innerHTML = `
-                    <div class="input-group">
-                        <label class="input-label" for="regNameField">Assign Callsign</label>
-                        <input type="text" id="regNameField" class="auth-input" placeholder="AgentCallsign" required autocomplete="username">
-                        <div class="field-error-text" id="regNameField_error"></div>
-                    </div>
-                    <div class="input-group">
-                        <label class="input-label" for="regEmailField">Operator Email</label>
-                        <input type="email" id="regEmailField" class="auth-input" placeholder="agent@guardai.com" required autocomplete="email">
-                        <div class="field-error-text" id="regEmailField_error"></div>
-                    </div>
-                    <div class="input-group">
-                        <label class="input-label" for="regPassField">Generate Crypto Key</label>
-                        <div class="password-wrapper">
-                            <input type="password" id="regPassField" class="auth-input" placeholder="Minimum 6 characters" required autocomplete="new-password">
-                            <button type="button" class="toggle-password-btn" data-target="regPassField">SHOW</button>
-                        </div>
-                        <div class="field-error-text" id="regPassField_error"></div>
-                    </div>
-                `;
-                submitBtn.querySelector('.btn-text').innerText = 'PROVISION ENCRYPTED ACCOUNT';
-                toggleContainer.innerHTML =
-                    `Token active? <span id="actionToggleTriggerLink">Return to Authorization</span>`;
-            }
-
-            // Attach password toggle handlers
-            document.querySelectorAll('.toggle-password-btn').forEach(btn => {
-                const targetId = btn.getAttribute('data-target');
-                const handler = () => {
-                    const targetInput = document.getElementById(targetId);
-                    if (targetInput) {
-                        const newType = targetInput.type === 'password' ? 'text' : 'password';
-                        targetInput.type = newType;
-                        btn.innerText = newType === 'password' ? 'SHOW' : 'HIDE';
-                    }
-                };
-                btn.removeEventListener('click', handler);
-                btn.addEventListener('click', handler);
-            });
-
-            // Attach mode toggle
-            const linkSpan = document.getElementById('actionToggleTriggerLink');
-            if (linkSpan) {
-                linkSpan.onclick = () => {
-                    authMode = authMode === 'login' ? 'register' : 'login';
-                    renderAuthForm();
-                };
-            }
-
-            // Focus first input
-            const firstInput = fieldsDiv.querySelector('input');
-            if (firstInput) setTimeout(() => firstInput.focus(), 100);
-        }
-
-        // ─────────────────────────────────────────────
-        // 11. AUTH FORM SUBMISSION HANDLER
-        // ─────────────────────────────────────────────
-        async function handleAuthSubmit(e) {
-            e.preventDefault();
-            if (isSubmitting) return;
-
-            hideAllBoxes();
-            clearAllFieldErrors();
-            setSubmitLoading(true);
-
-            try {
-                if (authMode === 'login') {
-                    const email = document.getElementById('loginEmailField')?.value || '';
-                    const password = document.getElementById('loginPassField')?.value || '';
-
-                    // Client-side pre-validation
-                    const emailCheck = Validator.validateEmail(email);
-                    if (!emailCheck.valid) {
-                        setFieldError('loginEmailField', emailCheck.error);
-                        setSubmitLoading(false);
-                        return;
-                    }
-                    const passCheck = Validator.validatePassword(password);
-                    if (!passCheck.valid) {
-                        setFieldError('loginPassField', passCheck.error);
-                        setSubmitLoading(false);
-                        return;
-                    }
-
-                    // Check rate limiter before attempting
-                    if (RateLimiter.isBlocked(emailCheck.sanitized)) {
-                        const mins = RateLimiter.getBlockTimeRemaining(emailCheck.sanitized);
-                        showErrorBox(`Rate limit active. Retry in ${mins} minute(s).`);
-                        setSubmitLoading(false);
-                        return;
-                    }
-
-                    const result = await AuthService.login({ email: emailCheck.sanitized, password: passCheck
-                            .sanitized });
-
-                    if (!result.success) {
-                        showErrorBox(`ERR_${result.code}: ${result.error}`);
-                        setSubmitLoading(false);
-                        return;
-                    }
-
-                    startDashboardSession(result.data);
-                } else {
-                    const username = document.getElementById('regNameField')?.value || '';
-                    const email = document.getElementById('regEmailField')?.value || '';
-                    const password = document.getElementById('regPassField')?.value || '';
-
-                    // Client-side pre-validation
-                    let hasError = false;
-                    const nameCheck = Validator.validateUsername(username);
-                    if (!nameCheck.valid) { setFieldError('regNameField', nameCheck.error);
-                        hasError = true; }
-                    const emailCheck = Validator.validateEmail(email);
-                    if (!emailCheck.valid) { setFieldError('regEmailField', emailCheck.error);
-                        hasError = true; }
-                    const passCheck = Validator.validatePassword(password);
-                    if (!passCheck.valid) { setFieldError('regPassField', passCheck.error);
-                        hasError = true; }
-                    if (hasError) { setSubmitLoading(false); return; }
-
-                    const result = await AuthService.register({
-                        username: nameCheck.sanitized,
-                        email: emailCheck.sanitized,
-                        password: passCheck.sanitized,
-                    });
-
-                    if (!result.success) {
-                        showErrorBox(`ERR_${result.code}: ${result.error}`);
-                        setSubmitLoading(false);
-                        return;
-                    }
-
-                    showSuccessBox('Account provisioned successfully. Switching to login...');
-                    setSubmitLoading(false);
-                    // Auto-switch to login mode after short delay
-                    setTimeout(() => {
-                        authMode = 'login';
-                        renderAuthForm();
-                        // Pre-fill the email
-                        const loginEmail = document.getElementById('loginEmailField');
-                        if (loginEmail) loginEmail.value = emailCheck.sanitized;
-                        const loginPass = document.getElementById('loginPassField');
-                        if (loginPass) { loginPass.value = '';
-                            loginPass.focus(); }
-                    }, 1800);
-                }
-            } catch (err) {
-                showErrorBox('SYSTEM_FAULT: An unexpected error occurred. Retry the operation.');
-                console.error('[Auth Error]', err);
-                setSubmitLoading(false);
-            }
-        }
-
-        // ─────────────────────────────────────────────
-        // 12. DASHBOARD SESSION MANAGEMENT
-        // ─────────────────────────────────────────────
-        function startDashboardSession(userData) {
-            activeSession = userData;
-            document.getElementById('authContainer').style.display = 'none';
-            document.getElementById('dashboardContainer').style.display = 'block';
-
-            // Populate sidebar profile
-            document.getElementById('profileSessionAvatar').innerText = userData.username.substring(0, 2).toUpperCase();
-            document.getElementById('profileSessionName').innerText = userData.username;
-            document.getElementById('profileSessionRole').innerText = userData.role || 'SOC_ANALYST';
-            document.getElementById('profileSessionClearance').innerText = userData.clearanceLevel || 'LVL-2';
-
-            // Initialize dashboard widgets
-            renderGeo();
-            renderEvents();
-            renderChart(currentSpan);
-            if (telemetryInterval) clearInterval(telemetryInterval);
-            telemetryInterval = setInterval(refreshSimulation, 5500);
-
-            // Close mobile drawer if open
-            document.getElementById('appNavigationDrawer')?.classList.remove('open');
-            document.getElementById('sidebarOverlay')?.classList.remove('active');
-            document.getElementById('mobileDrawerTrigger')?.classList.remove('open');
-
-            showToast(`Terminal link established // ${userData.username} [${userData.clearanceLevel}]`);
-            setSubmitLoading(false);
-        }
-
-        async function killSession() {
-            AuthService.logout();
-            if (telemetryInterval) { clearInterval(telemetryInterval);
-                telemetryInterval = null; }
-            if (chartInstance) { chartInstance.destroy();
-                chartInstance = null; }
-            activeSession = null;
-            document.getElementById('dashboardContainer').style.display = 'none';
-            document.getElementById('authContainer').style.display = 'flex';
-            authMode = 'login';
-            renderAuthForm();
-            document.getElementById('appNavigationDrawer')?.classList.remove('open');
-            document.getElementById('sidebarOverlay')?.classList.remove('active');
-            document.getElementById('mobileDrawerTrigger')?.classList.remove('open');
-            showToast('Session terminated securely // Token revoked');
-        }
-
-        // ─────────────────────────────────────────────
-        // 13. DASHBOARD WIDGETS (Unchanged from original)
-        // ─────────────────────────────────────────────
-        const CHART_DATA = {
-            "7d": { axis: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], dDoS: [14, 22, 19, 35, 42, 28,
-                    31
-                ], kernel: [4, 9, 7, 12, 18, 11, 13] },
-            "30d": { axis: ['P1', 'P4', 'P7', 'P10', 'P13', 'P16', 'P19', 'P22', 'P25', 'P28'], dDoS: [90, 110, 95, 130,
-                    150, 115, 120, 140, 135, 145
-                ], kernel: [30, 42, 35, 55, 68, 48, 52, 60, 55, 62] },
-            "90d": { axis: ['M1', 'M2', 'M3'], dDoS: [340, 410, 480], kernel: [110, 145, 185] }
-        };
-        const GEO_BASE = [
-            { flag: '🌐', node: 'Edge Node 01 (US_WEST)', ip: '198.51.100.42', code: 'CRIT', css: 'crit',
-            depth: 88 },
-            { flag: '🌐', node: 'Edge Node 04 (EU_CENTRAL)', ip: '203.0.113.118', code: 'HIGH', css: 'high',
-                depth: 62 },
-            { flag: '🌐', node: 'Edge Node 09 (AP_SOUTH)', ip: '192.0.2.251', code: 'MED', css: 'med',
-            depth: 31 }
-        ];
-        let eventLogs = [
-            { type: 'crit', code: 'CRIT', details: 'Kernel level execution hook blocked', origin: '198.51.100.42',
-                age: '1m ago' },
-            { type: 'high', code: 'HIGH', details: 'Volumetric ingress buffer overload', origin: '203.0.113.118',
-                age: '8m ago' }
-        ];
-
-        function renderGeo() {
-            const container = document.getElementById('geographyMetricTarget');
-            if (!container) return;
-            container.innerHTML = GEO_BASE.map(g => `
-                <div class="geo-row">
-                    <span style="font-size:16px;">${g.flag}</span>
-                    <div><div style="font-weight:600;">${g.node}</div><div style="font-family:'IBM Plex Mono',monospace;font-size:10px;">${g.ip}</div></div>
-                    <div class="geo-bar-bg"><div class="geo-bar-fill ${g.css}" style="width:${g.depth}%;"></div></div>
-                    <span class="sev-badge ${g.css}">${g.code}</span>
-                </div>
-            `).join('');
-        }
-
-        function renderEvents() {
-            const target = document.getElementById('eventRealtimeStreamTarget');
-            if (!target) return;
-            if (eventLogs.length === 0) {
-                target.innerHTML =
-                    `<div style="padding:32px;text-align:center;color:var(--text-ghost);">// NO ACTIVE THREAT EVENTS</div>`;
+                lucide.createIcons();
                 return;
             }
-            target.innerHTML = eventLogs.map(ev => `
-                <div class="event-row">
-                    <div class="indicator-node" style="background:${ev.type==='crit'?'var(--danger)':ev.type==='high'?'var(--warning)':'var(--text-ghost)'};"></div>
-                    <div style="flex:1;"><div style="font-weight:500;">${ev.details}</div><div style="font-family:'IBM Plex Mono',monospace;font-size:10px;">ORIGIN: ${ev.origin}</div></div>
-                    <div><span class="sev-badge ${ev.type}">${ev.code}</span><div style="font-size:9px;color:var(--text-ghost);">${ev.age}</div></div>
+            list.innerHTML = SystemState.activityLog.slice(0, 20).map(item => `
+                <div class="data-item">
+                    <span>${item.text}</span>
+                    <span style="font-size:0.7rem; color:var(--text-dim); flex-shrink:0;">${item.time}</span>
+                </div>
+            `).join('');
+        },
+
+        clear() {
+            SystemState.activityLog = [];
+            this.render();
+            ToastSystem.info('Activity log cleared');
+        }
+    };
+
+    // ================================================================
+    //  UI CONTROLLER — Navigation & Tabs
+    // ================================================================
+    const UIController = {
+        init() {
+            // Tab switching
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', (e) => this.switchTab(e.currentTarget.dataset.tab));
+                tab.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        this.switchTab(e.currentTarget.dataset.tab);
+                    }
+                });
+            });
+
+            // Scan type selector
+            document.querySelectorAll('.scan-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    document.querySelectorAll('.scan-card').forEach(c => {
+                        c.classList.remove('selected');
+                        c.setAttribute('aria-checked', 'false');
+                    });
+                    card.classList.add('selected');
+                    card.setAttribute('aria-checked', 'true');
+                    const type = card.dataset.type;
+                    document.getElementById('customPathInput').style.display = type === 'custom' ? 'block' :
+                        'none';
+                });
+                card.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        card.click();
+                    }
+                });
+            });
+
+            // Global search shortcut
+            const searchInput = document.getElementById('globalSearch');
+            document.addEventListener('keydown', (e) => {
+                if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                    e.preventDefault();
+                    searchInput.focus();
+                }
+                if (e.key === 'Escape') searchInput.blur();
+            });
+
+            // Drag & drop
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('fileInput');
+            dropZone.addEventListener('click', () => fileInput.click());
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            });
+            dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                if (e.dataTransfer.files.length) {
+                    fileInput.files = e.dataTransfer.files;
+                    ScannerModule.startScan();
+                }
+            });
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length) ScannerModule.startScan();
+            });
+
+            // Init icons
+            lucide.createIcons();
+
+            // Render initial states
+            ActivityLogModule.render();
+            SystemState.updateMetricsUI();
+            QuarantineModule.render();
+            FirewallModule.render();
+            NetworkModule.render();
+
+            ToastSystem.init();
+        },
+
+        switchTab(tabId) {
+            document.querySelectorAll('.nav-tab').forEach(t => {
+                t.classList.remove('active');
+                t.setAttribute('aria-selected', 'false');
+            });
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+
+            const activeTab = document.querySelector(`[data-tab="${tabId}"]`);
+            const activePane = document.getElementById(tabId);
+            if (activeTab && activePane) {
+                activeTab.classList.add('active');
+                activeTab.setAttribute('aria-selected', 'true');
+                activePane.classList.add('active');
+
+                // Re-render dynamic content
+                if (tabId === 'quarantine') QuarantineModule.render();
+                if (tabId === 'firewall') FirewallModule.render();
+                if (tabId === 'network') NetworkModule.render();
+
+                // Re-init icons in new pane
+                setTimeout(() => lucide.createIcons(), 50);
+            }
+        }
+    };
+
+    // ================================================================
+    //  SCANNER MODULE — State Machine
+    // ================================================================
+    const ScannerModule = {
+        state: 'idle', // idle | running | paused | completed
+        interval: null,
+        progress: 0,
+
+        init() {
+            document.getElementById('btnStartScan').addEventListener('click', () => this.startScan());
+            document.getElementById('btnPauseScan').addEventListener('click', () => this.togglePause());
+        },
+
+        startScan() {
+            if (this.state === 'running') return;
+            this.state = 'running';
+            this.progress = 0;
+            const startBtn = document.getElementById('btnStartScan');
+            const pauseBtn = document.getElementById('btnPauseScan');
+            const progressFill = document.getElementById('scanProgressFill');
+            const resultsList = document.getElementById('scanResultsList');
+            const progressBar = document.getElementById('progressBar');
+
+            startBtn.disabled = true;
+            pauseBtn.disabled = false;
+            pauseBtn.textContent = 'Pause';
+            progressFill.style.width = '0%';
+            resultsList.innerHTML = '';
+            progressBar.setAttribute('aria-valuenow', '0');
+
+            // Add pulse class
+            document.querySelector('.viewport').classList.add('scan-pulse');
+
+            this.interval = setInterval(() => {
+                this.progress += 3;
+                if (this.progress > 100) this.progress = 100;
+                progressFill.style.width = `${this.progress}%`;
+                progressBar.setAttribute('aria-valuenow', this.progress);
+
+                if (this.progress >= 100) {
+                    clearInterval(this.interval);
+                    this.interval = null;
+                    this.state = 'completed';
+                    startBtn.disabled = false;
+                    pauseBtn.disabled = true;
+                    document.querySelector('.viewport').classList.remove('scan-pulse');
+                    this.completeScan();
+                }
+            }, 50);
+            SystemState.addLog('Scan initiated (type: ' + document.querySelector('.scan-card.selected')?.dataset.type ||
+                'quick' + ')');
+            ToastSystem.info('Scanning in progress…');
+        },
+
+        togglePause() {
+            const pauseBtn = document.getElementById('btnPauseScan');
+            if (this.state === 'running') {
+                this.state = 'paused';
+                clearInterval(this.interval);
+                this.interval = null;
+                pauseBtn.textContent = 'Resume';
+                ToastSystem.warning('Scan paused');
+                document.querySelector('.viewport').classList.remove('scan-pulse');
+            } else if (this.state === 'paused') {
+                this.state = 'running';
+                pauseBtn.textContent = 'Pause';
+                document.querySelector('.viewport').classList.add('scan-pulse');
+                this.interval = setInterval(() => {
+                    this.progress += 3;
+                    if (this.progress > 100) this.progress = 100;
+                    document.getElementById('scanProgressFill').style.width = `${this.progress}%`;
+                    document.getElementById('progressBar').setAttribute('aria-valuenow', this.progress);
+                    if (this.progress >= 100) {
+                        clearInterval(this.interval);
+                        this.interval = null;
+                        this.state = 'completed';
+                        document.getElementById('btnStartScan').disabled = false;
+                        document.getElementById('btnPauseScan').disabled = true;
+                        document.querySelector('.viewport').classList.remove('scan-pulse');
+                        this.completeScan();
+                    }
+                }, 50);
+                ToastSystem.info('Scan resumed');
+            }
+        },
+
+        completeScan() {
+            const resultsList = document.getElementById('scanResultsList');
+            SystemState.scannedCount += 180 + Math.floor(Math.random() * 120);
+            SystemState.lastScanTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            const threatRoll = Math.random();
+            let threats = [];
+            if (threatRoll > 0.55) {
+                const signatures = [
+                    { name: 'Trojan.Win32.Agent.Payload', type: 'Trojan' },
+                    { name: 'Adware.Tracking.Cookie', type: 'Adware' },
+                    { name: 'Ransomware.Cryptor.Gen', type: 'Ransomware' },
+                    { name: 'Phishing.Script.Injector', type: 'Phishing' }
+                ];
+                const count = 1 + Math.floor(Math.random() * 2);
+                for (let i = 0; i < count; i++) {
+                    const sig = signatures[Math.floor(Math.random() * signatures.length)];
+                    if (!SystemState.quarantineVault.find(item => item.name === sig.name)) {
+                        threats.push(sig);
+                        QuarantineModule.add(sig.name, sig.type);
+                    }
+                }
+            }
+
+            if (threats.length) {
+                resultsList.innerHTML = threats.map(t => `
+                    <div class="data-item">
+                        <span>${t.name}</span>
+                        <span class="badge badge-danger">Quarantined (${t.type})</span>
+                    </div>
+                `).join('');
+                ToastSystem.danger(`Scan completed · ${threats.length} threat(s) neutralized`);
+                SystemState.addLog(`Scan found ${threats.length} threat(s)`);
+            } else {
+                resultsList.innerHTML = `
+                    <div class="data-item">
+                        <span>All monitored processes &amp; directories clean</span>
+                        <span class="badge badge-success">Passed</span>
+                    </div>
+                `;
+                ToastSystem.success('Scan completed · Zero threats detected');
+                SystemState.addLog('Scan completed · clean');
+            }
+
+            SystemState.updateMetricsUI();
+            document.getElementById('btnStartScan').disabled = false;
+            document.getElementById('btnPauseScan').disabled = true;
+            document.querySelector('.viewport').classList.remove('scan-pulse');
+            lucide.createIcons();
+        }
+    };
+
+    // ================================================================
+    //  QUARANTINE MODULE
+    // ================================================================
+    const QuarantineModule = {
+        add(name, type) {
+            if (!SystemState.quarantineVault.find(item => item.name === name)) {
+                SystemState.quarantineVault.push({ name, type, time: new Date().toLocaleTimeString() });
+                SystemState.score = Math.max(15, SystemState.score - 8);
+                SystemState.updateMetricsUI();
+                this.render();
+            }
+        },
+
+        purgeAll() {
+            if (!SystemState.quarantineVault.length) {
+                ToastSystem.warning('Vault is already empty');
+                return;
+            }
+            SystemState.quarantineVault = [];
+            SystemState.score = Math.min(100, SystemState.score + 10);
+            SystemState.updateMetricsUI();
+            this.render();
+            ToastSystem.success('Quarantine Vault purged');
+            SystemState.addLog('Quarantine vault purged');
+        },
+
+        render() {
+            const list = document.getElementById('quarantineList');
+            if (!SystemState.quarantineVault.length) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <i data-lucide="lock"></i>
+                        <div class="empty-title">Vault is empty</div>
+                        <div class="empty-desc">No threats currently isolated</div>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+            list.innerHTML = SystemState.quarantineVault.map(item => `
+                <div class="data-item">
+                    <div class="item-left">
+                        <strong>${item.name}</strong>
+                        <span class="badge badge-danger">${item.type}</span>
+                    </div>
+                    <span style="color:var(--text-dim); font-size:0.7rem;">${item.time}</span>
                 </div>
             `).join('');
         }
+    };
 
-        function renderChart(span) {
-            const canvas = document.getElementById('telemetryDataCanvas');
-            if (!canvas) return;
-            const data = CHART_DATA[span];
-            if (chartInstance) chartInstance.destroy();
-            chartInstance = new Chart(canvas, {
-                type: 'line',
-                data: {
-                    labels: data.axis,
-                    datasets: [
-                        { label: 'Volumetric Brute', data: data.dDoS, borderColor: '#FF4D4D', borderWidth: 2,
-                            tension: 0.1, pointRadius: 2, fill: false },
-                        { label: 'Kernel Anomalies', data: data.kernel, borderColor: '#2ECC71', borderWidth: 2,
-                            tension: 0.1, pointRadius: 2, fill: false }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: { legend: { labels: { color: '#7FA387', font: { size: 10,
-                                family: 'IBM Plex Mono' } } } },
-                    scales: { y: { grid: { color: '#19261E' }, ticks: { color: '#3D5444' } }, x: { ticks: { color: '#3D5444' } } }
-                }
-            });
+    // ================================================================
+    //  REAL-TIME SHIELD
+    // ================================================================
+    const RealtimeShieldModule = {
+        triggerSimulation() {
+            const threats = [
+                { name: 'Ransomware.Cryptor.Gen', type: 'Ransomware' },
+                { name: 'Trojan.Injector.B', type: 'Trojan' }
+            ];
+            const selected = threats[Math.floor(Math.random() * threats.length)];
+            QuarantineModule.add(selected.name, selected.type);
+            ToastSystem.danger(`Shield intercepted: ${selected.name} blocked`);
+            SystemState.addLog(`Real‑time shield blocked ${selected.name}`);
         }
+    };
 
-        function refreshSimulation() {
-            const blockedSpan = document.getElementById('hudMetricBlocked');
-            if (blockedSpan) {
-                let val = parseInt(blockedSpan.innerText.replace(/,/g, '')) || 4129;
-                blockedSpan.innerText = (val + Math.floor(Math.random() * 4)).toLocaleString();
+    // ================================================================
+    //  FIREWALL MODULE
+    // ================================================================
+    const FirewallModule = {
+        render() {
+            const list = document.getElementById('firewallRulesList');
+            if (!SystemState.firewallRules.length) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <i data-lucide="flame"></i>
+                        <div class="empty-title">No firewall rules</div>
+                        <div class="empty-desc">Add a rule to start controlling traffic</div>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
             }
-            if (Math.random() > 0.65) {
-                const newEvent = {
-                    type: Math.random() > 0.6 ? 'high' : 'med',
-                    code: Math.random() > 0.6 ? 'HIGH' : 'MED',
-                    details: 'Heuristic anomaly pattern sequence isolated',
-                    origin: ['198.51.100.12', '203.0.113.84', '192.0.2.4'][Math.floor(Math.random() * 3)],
-                    age: 'just now'
-                };
-                eventLogs.unshift(newEvent);
-                if (eventLogs.length > 15) eventLogs.pop();
-                renderEvents();
-            }
-        }
+            list.innerHTML = SystemState.firewallRules.map(rule => `
+                <div class="data-item">
+                    <div class="item-left">
+                        <span><strong>${rule.app}</strong> → ${rule.target}</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:0.5rem; flex-shrink:0;">
+                        <span class="badge ${rule.action === 'Block' ? 'badge-danger' : 'badge-success'}">${rule.action}</span>
+                        <button class="btn btn-outline btn-sm" onclick="FirewallModule.removeRule(${rule.id})" aria-label="Delete rule">
+                            <i data-lucide="x" style="width:12px; height:12px;"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        },
 
-        function processAIQuery(input) {
-            const q = input.toLowerCase().trim();
-            if (q === 'stats')
-            return `Telemetry matrix: avg pipeline 0.8ms, 0% packet loss, 4,200+ blocks in last hour.`;
-            if (q === 'flush') { eventLogs = [];
-                renderEvents(); return `Audit event buffer flushed.`; }
-            if (q === 'help') return `Available commands: stats, flush, help. Or ask about threats.`;
-            return `Unknown command. Type "help" for available operations.`;
-        }
-
-        function sendAIMessage() {
-            const input = document.getElementById('aiConsoleInputHook');
-            const chatBox = document.getElementById('aiAssistantDialogContainer');
-            if (!input || !chatBox) return;
-            const text = input.value.trim();
-            if (!text) return;
-            const userDiv = document.createElement('div');
-            userDiv.className = 'log-block operator';
-            userDiv.innerHTML =
-                `<span class="log-tag">// OPERATOR_${activeSession ? activeSession.username.toUpperCase() : 'USER'}</span>${Validator.sanitizeString(text)}`;
-            chatBox.appendChild(userDiv);
-            input.value = '';
-            chatBox.scrollTop = chatBox.scrollHeight;
-            setTimeout(() => {
-                const reply = processAIQuery(text);
-                const sysDiv = document.createElement('div');
-                sysDiv.className = 'log-block system';
-                sysDiv.innerHTML = `<span class="log-tag">// AGENT_SYSTEM</span>${reply}`;
-                chatBox.appendChild(sysDiv);
-                chatBox.scrollTop = chatBox.scrollHeight;
-            }, 300);
-        }
-
-        function toggleDrawer(open) {
-            const drawer = document.getElementById('appNavigationDrawer');
-            const overlay = document.getElementById('sidebarOverlay');
-            const burger = document.getElementById('mobileDrawerTrigger');
-            if (!drawer) return;
-            if (open) { drawer.classList.add('open');
-                overlay?.classList.add('active');
-                burger?.classList.add('open'); } else { drawer.classList.remove('open');
-                overlay?.classList.remove('active');
-                burger?.classList.remove('open'); }
-        }
-
-        // ─────────────────────────────────────────────
-        // 14. BOOTSTRAP & EVENT BINDINGS
-        // ─────────────────────────────────────────────
-        document.addEventListener('DOMContentLoaded', () => {
-            // Initialize database
-            DB.initialize();
-
-            // Render auth form
-            renderAuthForm();
-
-            // Auth form submission
-            document.getElementById('authPipelineForm')?.addEventListener('submit', handleAuthSubmit);
-
-            // Logout button
-            document.getElementById('sessionDestroyTrigger')?.addEventListener('click', killSession);
-
-            // Mobile drawer
-            document.getElementById('mobileDrawerTrigger')?.addEventListener('click', () => toggleDrawer(true));
-            document.getElementById('sidebarOverlay')?.addEventListener('click', () => toggleDrawer(false));
-
-            // Event flush
-            document.getElementById('eventFlushTrigger')?.addEventListener('click', () => {
-                eventLogs = [];
-                renderEvents();
-                showToast("Event buffer flushed");
-            });
-
-            // Report generation
-            document.getElementById('generationReportTrigger')?.addEventListener('click', () => {
-                showToast("Compiling audit log...");
-                setTimeout(() => showToast("Export ready: guardai_audit.json"), 1500);
-            });
-
-            // AI Console
-            document.getElementById('aiConsoleDispatchTrigger')?.addEventListener('click', sendAIMessage);
-            document.getElementById('aiConsoleInputHook')?.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') sendAIMessage();
-            });
-
-            // Chart timeframe switching
-            document.getElementById('chartTimeframeSwitchGroup')?.addEventListener('click', (e) => {
-                const btn = e.target.closest('.chart-tab');
-                if (!btn || !btn.dataset.span) return;
-                document.querySelectorAll('#chartTimeframeSwitchGroup .chart-tab').forEach(b => b.classList
-                    .remove('active'));
-                btn.classList.add('active');
-                currentSpan = btn.dataset.span;
-                renderChart(currentSpan);
-                showToast(`Timeline scaled: ${currentSpan.toUpperCase()}`);
-            });
-
-            // Clock sync
-            setInterval(() => {
-                const clockSpan = document.getElementById('clockSync');
-                if (clockSpan) clockSpan.innerText = new Date().toISOString().replace('T', ' ').substring(0,
-                    19) + ' UTC';
-            }, 1000);
-
-            // ── SESSION RESTORATION (Route Middleware Simulation) ──
-            // In production, Next.js middleware would intercept requests
-            // to protected routes and validate the session cookie server-side.
-            // Here we simulate that middleware behavior on page load.
-            const sessionResult = AuthService.getSession();
-            if (sessionResult.success && sessionResult.data) {
-                const user = DB.findUserById(sessionResult.data.id);
-                if (user) {
-                    startDashboardSession({
-                        ...sessionResult.data,
-                        token: SessionManager.getSession()?.token,
+        addRulePrompt() {
+            const app = prompt('Enter Application Name:', 'untrusted_app.exe');
+            if (app && app.trim()) {
+                const target = prompt('Target (IP:port or *:port):', '*:80');
+                if (target !== null) {
+                    SystemState.firewallRules.push({
+                        id: Date.now(),
+                        app: app.trim(),
+                        target: target.trim() || '*:80',
+                        action: 'Block'
                     });
+                    this.render();
+                    ToastSystem.success(`Rule added for ${app.trim()}`);
+                    SystemState.addLog(`Firewall rule added: ${app.trim()}`);
                 }
             }
-            // If no valid session, the authContainer remains visible (default)
-        });
+        },
 
-        // ── GLOBAL MIDDLEWARE GUARD (simulated) ──
-        // In a Next.js app, this would be in middleware.ts:
-        //
-        //   import { NextResponse } from 'next/server';
-        //   import { getToken } from 'next-auth/jwt';
-        //   export async function middleware(req) {
-        //     const token = await getToken({ req, secret: process.env.JWT_SECRET });
-        //     const isAuthPage = req.nextUrl.pathname.startsWith('/auth');
-        //     const isProtected = req.nextUrl.pathname.startsWith('/dashboard');
-        //     if (isProtected && !token) {
-        //       return NextResponse.redirect(new URL('/auth/login', req.url));
-        //     }
-        //     if (isAuthPage && token) {
-        //       return NextResponse.redirect(new URL('/dashboard', req.url));
-        //     }
-        //     return NextResponse.next();
-        //   }
-        //   export const config = { matcher: ['/dashboard/:path*', '/auth/:path*'] };
-        //
-        // This ensures HTTP-only cookie validation at the edge before
-        // any protected route renders, preventing unauthorized access.
+        removeRule(id) {
+            SystemState.firewallRules = SystemState.firewallRules.filter(r => r.id !== id);
+            this.render();
+            ToastSystem.info('Rule removed');
+            SystemState.addLog('Firewall rule removed');
+        }
+    };
 
-        console.log('%c[GuardAI v4.5] %cFull-Stack Auth Engine Initialized %c✓',
-            'color: #2ECC71; font-weight: bold;',
-            'color: #EAF2EC;',
-            'color: #2ECC71;');
-        console.log('%c[Security] %cbcrypt simulation active | JWT tokens | Zod validation | Rate limiting | HTTP-only cookies',
-            'color: #FFA500;',
-            'color: #7FA387;');
-    </script>
+    // ================================================================
+    //  WEB SHIELD
+    // ================================================================
+    const WebShieldModule = {
+        checkUrl() {
+            const url = document.getElementById('webUrlInput').value.trim();
+            const res = document.getElementById('webResult');
+            if (!url) {
+                ToastSystem.warning('Please enter a URL');
+                return;
+            }
+            const isMalicious = /phish|malicious|evil|attack|fake|spam/i.test(url);
+            res.innerHTML = `
+                <div class="data-item">
+                    <span>${url}</span>
+                    <span class="badge ${isMalicious ? 'badge-danger' : 'badge-success'}">
+                        ${isMalicious ? 'Blocked (Threat)' : 'Clean'}
+                    </span>
+                </div>
+            `;
+            if (isMalicious) {
+                ToastSystem.danger('Malicious domain detected');
+                SystemState.addLog(`Web shield blocked: ${url}`);
+            } else {
+                ToastSystem.success('Domain is clean');
+            }
+            lucide.createIcons();
+        }
+    };
+
+    // ================================================================
+    //  EMAIL MODULE
+    // ================================================================
+    const EmailModule = {
+        scanInbox() {
+            const container = document.getElementById('emailResults');
+            container.innerHTML = `
+                <div class="data-item">
+                    <span>IMAP/SMTP Transport Diagnostic</span>
+                    <span class="badge badge-success">0 infected packets</span>
+                </div>
+            `;
+            ToastSystem.success('Email transport verified');
+            SystemState.addLog('Email sentry scan completed');
+            lucide.createIcons();
+        }
+    };
+
+    // ================================================================
+    //  USB MODULE
+    // ================================================================
+    const USBModule = {
+        scanUSB() {
+            ToastSystem.success('USB volume scan completed · clean');
+            SystemState.addLog('USB guard scan performed');
+        }
+    };
+
+    // ================================================================
+    //  NETWORK MODULE
+    // ================================================================
+    const NetworkModule = {
+        render() {
+            const profile = document.getElementById('networkProfile');
+            profile.innerHTML = `
+                <div class="data-item"><span>Active Connection</span><strong>Guardian_Net_Enterprise</strong></div>
+                <div class="data-item"><span>Security Protocol</span><span class="badge badge-success">WPA3‑Enterprise</span></div>
+                <div class="data-item"><span>DNS Integrity</span><span class="badge badge-success">Passed · Zero Spoofing</span></div>
+                <div class="data-item"><span>Packets Dropped</span><span class="text-muted">0</span></div>
+            `;
+            lucide.createIcons();
+        },
+
+        refresh() {
+            this.render();
+            ToastSystem.info('Network profile re‑evaluated');
+            SystemState.addLog('Network profile refreshed');
+        }
+    };
+
+    // ================================================================
+    //  PRIVACY MODULE
+    // ================================================================
+    const PrivacyModule = {
+        audit() {
+            const results = document.getElementById('privacyAuditResults');
+            results.innerHTML = `
+                <div class="data-item"><span>Screen Recording Access</span><span class="badge badge-success">Blocked</span></div>
+                <div class="data-item"><span>Microphone Handles</span><span class="badge badge-warning">1 Active App</span></div>
+                <div class="data-item"><span>Camera Permissions</span><span class="badge badge-success">All Blocked</span></div>
+            `;
+            ToastSystem.info('Privacy audit completed');
+            SystemState.addLog('Privacy audit executed');
+            lucide.createIcons();
+        }
+    };
+
+    // ================================================================
+    //  CLEANER MODULE
+    // ================================================================
+    const CleanerModule = {
+        clean() {
+            document.getElementById('cleanerMetrics').innerHTML =
+                'Unindexed Cache: <strong>0 MB</strong> · Stale Logs: <strong>0 MB</strong> · Temp Folders: <strong>0 MB</strong>';
+            ToastSystem.success('System purge completed');
+            SystemState.addLog('Temporary artifacts purged');
+        }
+    };
+
+    // ================================================================
+    //  AI ASSISTANT CONSOLE
+    // ================================================================
+    const AssistantConsole = {
+        init() {
+            const sendBtn = document.getElementById('btnChatSend');
+            const input = document.getElementById('chatInput');
+
+            const handle = () => {
+                const text = input.value.trim();
+                if (!text) return;
+                this.addBubble(text, 'user');
+                input.value = '';
+                setTimeout(() => {
+                    this.addBubble(this.respond(text), 'bot');
+                }, 350);
+            };
+
+            sendBtn.addEventListener('click', handle);
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handle();
+                }
+            });
+        },
+
+        addBubble(text, sender) {
+            const chat = document.getElementById('chatContainer');
+            const bubble = document.createElement('div');
+            bubble.className = `chat-bubble ${sender}`;
+            bubble.textContent = text;
+            chat.appendChild(bubble);
+            chat.scrollTop = chat.scrollHeight;
+        },
+
+        respond(query) {
+            const q = query.toLowerCase();
+            if (q.includes('scan') || q.includes('virus') || q.includes('malware')) {
+                return 'Initiate scans from the Scanner tab. Signatures are cloud‑synced and updated hourly.';
+            }
+            if (q.includes('firewall') || q.includes('rule')) {
+                return 'Firewall rules are listed under the Firewall tab. You can add custom rules to block/allow traffic.';
+            }
+            if (q.includes('quarantine') || q.includes('vault')) {
+                return 'Quarantined threats are isolated in a restricted memory vault. Use the Quarantine tab to manage.';
+            }
+            if (q.includes('dns') || q.includes('network') || q.includes('wifi')) {
+                return 'Network integrity is verified via WPA3‑Enterprise. DNS spoofing protection is active.';
+            }
+            if (q.includes('status') || q.includes('health')) {
+                return `System health: ${SystemState.score}/100 · ${SystemState.quarantineVault.length} threats in vault · ${SystemState.scannedCount} files scanned.`;
+            }
+            return 'Security Console online. Systems operational across real‑time file monitoring, network shields, and firewall controllers.';
+        },
+
+        runCommand(cmd) {
+            const input = document.getElementById('chatInput');
+            input.value = cmd;
+            document.getElementById('btnChatSend').click();
+        }
+    };
+
+    // ================================================================
+    //  BOOT
+    // ================================================================
+    document.addEventListener('DOMContentLoaded', () => {
+        UIController.init();
+        ScannerModule.init();
+        AssistantConsole.init();
+        ToastSystem.init();
+
+        setTimeout(() => {
+            ToastSystem.success('Guardian AI Enterprise initialized');
+        }, 400);
+    });
+</script>
+
 </body>
 </html>
